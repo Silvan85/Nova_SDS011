@@ -1,21 +1,28 @@
-// NovaSDS011 dust sensor PM2.5 and PM10
-// ---------------------
+// NovaSDS011( sensor of PM2.5 and PM10 )
+// ---------------------------------
 //
-// By R. Zschiegner (rz@madavi.de)
-// April 2016
+// By R. Orecki
+// December 2019
 //
 // Documentation:
-//		- The iNovaFitness NovaSDS011 datasheet
+//		- The iNovaFitness NovaSDS(datasheet)
 //
 
 #include "NovaSDS011.h"
 #include "Commands.h"
 
-static bool is_SDS_running = false;
-
-
 NovaSDS011::NovaSDS011(void) {
+}
 
+uint8_t NovaSDS011::calculateCheckSum(byte cmd[19]){
+  uint8_t checksum = 0;
+  for (int i = 2; i <= 16; i++)
+  {
+    checksum += cmd[i];
+  }
+
+  checksum = checksum % 0x100;
+  return checksum;
 }
 
 // --------------------------------------------------------
@@ -84,14 +91,7 @@ void NovaSDS011::wakeup() {
 void NovaSDS011::setDutyCycle(uint8_t duty_cycle) {
 
 	DUTTYCMD[4] = duty_cycle;
-	unsigned int checksum = 0;
-	for (int i = 2; i <= 16; i++)
-	{
-		checksum += DUTTYCMD[i];
-	}
-	
-	checksum = checksum % 0x100;
-	DUTTYCMD[17] = checksum;
+	DUTTYCMD[17] = calculateCheckSum(DUTTYCMD);
 
 	sds_data->write(DUTTYCMD, sizeof(DUTTYCMD));
 	sds_data->flush();
@@ -121,8 +121,7 @@ void NovaSDS011::begin(uint8_t pin_rx, uint8_t pin_tx) {
   /* read NovaSDS011 sensor values                                     *
   /*****************************************************************/
 String NovaSDS011::SDS_version_date()
-{
-  const uint8_t version_SDS_cmd[] = {0xAA, 0xB4, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x05, 0xAB};
+{ 
   String s = "";
   String value_hex;
   byte buffer;
@@ -135,9 +134,7 @@ String NovaSDS011::SDS_version_date()
   int position = 0;
 
 
-  delay(100);
-
-  sds_data->write(version_SDS_cmd, sizeof(version_SDS_cmd));
+  sds_data->write(VERSIONCMD, sizeof(VERSIONCMD));
   sds_data->flush();
   delay(100);
 

@@ -1,11 +1,11 @@
-// NovaSDS(st sensor PM2.5 and PM10
+// NovaSDS011( sensor of PM2.5 and PM10 )
 // ---------------------------------
 //
-// By R. Zschiegner (rz@madavi.de)
-// April 2016
+// By R. Orecki
+// December 2019
 //
 // Documentation:
-//		- The iNovaFitness NovaSDS(tasheet
+//		- The iNovaFitness NovaSDS(datasheet)
 //
 
 #if ARDUINO >= 100
@@ -32,6 +32,8 @@ class NovaSDS011 {
 		void stop_SDS();
 		void set_initiative_SDS();
 	private:
+		uint8_t calculateCheckSum(byte cmd[19]);		
+		bool is_SDS_running = false;
 		uint8_t _pin_rx, _pin_tx;
 		Stream *sds_data;		
 };
