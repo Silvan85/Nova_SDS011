@@ -1,27 +1,27 @@
-// SDS011 dust sensor PM2.5 and PM10
+// NovaSDS011 dust sensor PM2.5 and PM10
 // ---------------------
 //
 // By R. Zschiegner (rz@madavi.de)
 // April 2016
 //
 // Documentation:
-//		- The iNovaFitness SDS011 datasheet
+//		- The iNovaFitness NovaSDS011 datasheet
 //
 
-#include "SDS011.h"
+#include "NovaSDS011.h"
 #include "Commands.h"
 
 static bool is_SDS_running = false;
 
 
-SDS011::SDS011(void) {
+NovaSDS011::NovaSDS011(void) {
 
 }
 
 // --------------------------------------------------------
-// SDS011:read
+// NovaSDS011:read
 // --------------------------------------------------------
-int SDS011::read(float *p25, float *p10) {
+int NovaSDS011::read(float *p25, float *p10) {
 	byte buffer;
 	int value;
 	int len = 0;
@@ -58,9 +58,9 @@ int SDS011::read(float *p25, float *p10) {
 }
 
 // --------------------------------------------------------
-// SDS011:sleep
+// NovaSDS011:sleep
 // --------------------------------------------------------
-void SDS011::sleep() {
+void NovaSDS011::sleep() {
 	for (uint8_t i = 0; i < 19; i++) {
 		sds_data->write(SLEEPCMD[i]);
 	}
@@ -71,17 +71,17 @@ void SDS011::sleep() {
 }
 
 // --------------------------------------------------------
-// SDS011:wakeup
+// NovaSDS011:wakeup
 // --------------------------------------------------------
-void SDS011::wakeup() {
+void NovaSDS011::wakeup() {
 	sds_data->write(0x01);
 	sds_data->flush();
 }
 
 // --------------------------------------------------------
-// SDS011:setDutyCycle
+// NovaSDS011:setDutyCycle
 // --------------------------------------------------------
-void SDS011::setDutyCycle(uint8_t duty_cycle) {
+void NovaSDS011::setDutyCycle(uint8_t duty_cycle) {
 
 	DUTTYCMD[4] = duty_cycle;
 	unsigned int checksum = 0;
@@ -103,9 +103,9 @@ void SDS011::setDutyCycle(uint8_t duty_cycle) {
 }
 
 // --------------------------------------------------------
-// SDS011:begin
+// NovaSDS011:begin
 // --------------------------------------------------------
-void SDS011::begin(uint8_t pin_rx, uint8_t pin_tx) {
+void NovaSDS011::begin(uint8_t pin_rx, uint8_t pin_tx) {
 	_pin_rx = pin_rx;
 	_pin_tx = pin_tx;
 
@@ -118,9 +118,9 @@ void SDS011::begin(uint8_t pin_rx, uint8_t pin_tx) {
 }
 
  /*****************************************************************
-  /* read SDS011 sensor values                                     *
+  /* read NovaSDS011 sensor values                                     *
   /*****************************************************************/
-String SDS011::SDS_version_date()
+String NovaSDS011::SDS_version_date()
 {
   const uint8_t version_SDS_cmd[] = {0xAA, 0xB4, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x05, 0xAB};
   String s = "";
@@ -233,9 +233,9 @@ String SDS011::SDS_version_date()
 
 
 /*****************************************************************
-  /* start SDS011 sensor                                           *
+  /* start NovaSDS011 sensor                                           *
   /*****************************************************************/
-void SDS011::start_SDS()
+void NovaSDS011::start_SDS()
 {
   const uint8_t start_SDS_cmd[] =
       {
@@ -254,9 +254,9 @@ void SDS011::start_SDS()
 }
 
 /*****************************************************************
-  /* stop SDS011 sensor                                            *
+  /* stop NovaSDS011 sensor                                            *
   /*****************************************************************/
-void SDS011::stop_SDS()
+void NovaSDS011::stop_SDS()
 {
   const uint8_t stop_SDS_cmd[] =
       {
@@ -274,7 +274,7 @@ void SDS011::stop_SDS()
 }
 
 //set initiative mode
-void SDS011::set_initiative_SDS()
+void NovaSDS011::set_initiative_SDS()
 {
   //aa, 0xb4, 0x08, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x0a, 0xab
   const uint8_t stop_SDS_cmd[] =

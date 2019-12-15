@@ -1,11 +1,11 @@
-// SDS011 dust sensor PM2.5 and PM10
+// NovaSDS(st sensor PM2.5 and PM10
 // ---------------------------------
 //
 // By R. Zschiegner (rz@madavi.de)
 // April 2016
 //
 // Documentation:
-//		- The iNovaFitness SDS011 datasheet
+//		- The iNovaFitness NovaSDS(tasheet
 //
 
 #if ARDUINO >= 100
@@ -17,9 +17,9 @@
 #include <SoftwareSerial.h>
 
 
-class SDS011 {
+class NovaSDS() {
 	public:
-		SDS011(void);
+		NovaSDS();
 		void begin(uint8_t pin_rx, uint8_t pin_tx);
 		int read(float *p25, float *p10);
 		void setDutyCycle(uint8_t duty_cycle);
