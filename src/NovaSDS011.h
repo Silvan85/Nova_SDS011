@@ -17,9 +17,9 @@
 #include <SoftwareSerial.h>
 
 
-class NovaSDS() {
+class NovaSDS011 {
 	public:
-		NovaSDS();
+		NovaSDS011();
 		void begin(uint8_t pin_rx, uint8_t pin_tx);
 		int read(float *p25, float *p10);
 		void setDutyCycle(uint8_t duty_cycle);
