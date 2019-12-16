@@ -1,2 +1,4 @@
 # SDS011
- Nova SDS011 dust sensor library for Arduino
+ Arduino library for diving Nova Fitness Co.,Ltd. SDS011 dust sensor. 
+ Written according to Laser Dust Sensor Control Protocol V1.3
+
