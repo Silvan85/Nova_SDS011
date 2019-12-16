@@ -18,13 +18,12 @@ NovaSDS011::NovaSDS011(void) {
 // NovaSDS011:calculateCheckSum
 // --------------------------------------------------------
 uint8_t NovaSDS011::calculateCommandCheckSum(CommandType cmd){
-  uint8_t checksum = 0;
+  uint16_t checksum = 0;
   for (int i = 2; i <= 16; i++)
   {
     checksum += cmd[i];
   }
-
-  checksum = checksum % 0x100;
+  checksum &= 0xFF;
   return checksum;
 }
 
@@ -32,13 +31,13 @@ uint8_t NovaSDS011::calculateCommandCheckSum(CommandType cmd){
 // NovaSDS011:calculateCheckSum
 // --------------------------------------------------------
 uint8_t NovaSDS011::calculateReplyCheckSum(ReplyType reply){
-  uint8_t checksum = 0;
+  uint16_t checksum = 0;
   for (int i = 2; i <= 7; i++)
   {
     checksum += reply[i];
   }
 
-  checksum = checksum % 0x100;
+  checksum &= 0xFF;
   return checksum;
 }
 
@@ -58,6 +57,8 @@ void NovaSDS011::begin(uint8_t pin_rx, uint8_t pin_tx) {
 // --------------------------------------------------------
 bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id)
 {
+  Serial.println("setDataReportingMode");
+
   ReplyType reply;
 
   REPORTTYPECMD[3] = 0x01; //Set reporting mode
@@ -68,8 +69,9 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
 		_sdsSerial->write(REPORTTYPECMD[i]);
 	}
 	_sdsSerial->flush();
+  delay(100);
 
-  for (int i=0; (_sdsSerial->available() > 0) && (i < sizeof(ReplyType)); i++)
+  for (int i=0; (_sdsSerial->available() > 0); i++)
   {
     reply[i] = _sdsSerial->read(); 
   }
@@ -92,6 +94,7 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
   {
     if(REPORTTYPEREPLY[i] != reply[i])
     {
+      Serial.println("Error on byte " + String(i));
       return false;
     }
   }
@@ -103,6 +106,7 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
 // --------------------------------------------------------
 DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
 {
+  Serial.println("getDataReportingMode");
   ReplyType reply;
 
   REPORTTYPECMD[3] = 0x00; //Get reporting mode
@@ -114,6 +118,7 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
 		_sdsSerial->write(REPORTTYPECMD[i]);
 	}
 	_sdsSerial->flush();
+  delay(100);
 
   for (int i=0; (_sdsSerial->available() > 0) && (i < sizeof(ReplyType)); i++)
   {
@@ -138,6 +143,7 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
   {
     if(REPORTTYPEREPLY[i] != reply[i])
     {
+      Serial.println("Error on byte " + String(i));
       return DataReportingMode::error;
     }
   }
