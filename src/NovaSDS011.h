@@ -28,6 +28,14 @@ enum DataReportingMode
 	error = 0xFF
 };
 
+enum QuerryError
+{
+	no_error = 0,
+	no_new_data = 1,
+	response_error = 2,
+	call_to_often = 3
+};
+
 class NovaSDS011 {
 	public:
 		/**
@@ -39,8 +47,9 @@ class NovaSDS011 {
 		* Initialize comunication via serial bus.
 		* @param pin_rx 
 		* @param pin_tx 
+		* @param wait_write_read Max time in ms to wait for respons after sending command to sensor.
 		*/
-		void begin(uint8_t pin_rx, uint8_t pin_tx);
+		void begin(uint8_t pin_rx, uint8_t pin_tx, uint16_t wait_write_read = 100);
 
 		/**
 		* Set raport mode.
@@ -62,7 +71,7 @@ class NovaSDS011 {
 		DataReportingMode getDataReportingMode(uint16_t device_id = 0xFFFF);
 
 
-		bool queryData(float &PM25, float &PM10, uint16_t device_id = 0xFFFF);
+		QuerryError queryData(float &PM25, float &PM10, uint16_t device_id = 0xFFFF);
 
 
 
@@ -99,6 +108,14 @@ class NovaSDS011 {
 		* @return checksum value
 		*/
 		uint8_t calculateReplyCheckSum(ReplyType reply);	
+
+
+		void readReply(ReplyType &reply);	
+
+		/**
+		* Max time to wait for respons after sending command to sensor.
+		*/
+		uint16_t _waitWriteRead = 1000;
 
 		/**
 		* Current state of SDS011 sensor.

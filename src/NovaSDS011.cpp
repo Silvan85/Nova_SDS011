@@ -11,6 +11,26 @@
 #include "NovaSDS011.h"
 #include "Commands.h"
 
+//#define PRINT_DEBUG
+#define MIN_QUERY_INTERVAL 3000
+
+// --------------------------------------------------------
+// Debug output         
+// --------------------------------------------------------
+void DebugOut(const String &text, bool linebreak = true)
+{
+#ifdef PRINT_DEBUG
+  if (linebreak)
+  {
+    Serial.println(text);
+  }
+  else
+  {
+    Serial.print(text);
+  }
+#endif
+}
+
 NovaSDS011::NovaSDS011(void) {
 }
 
@@ -52,14 +72,44 @@ uint8_t NovaSDS011::calculateReplyCheckSum(ReplyType reply){
 }
 
 // --------------------------------------------------------
+// NovaSDS011:readReply
+// --------------------------------------------------------
+void  NovaSDS011::readReply(ReplyType &reply)
+{
+  uint64_t start = millis();
+  while(_sdsSerial->available() == 0)
+  {
+     if(millis() > (start + _waitWriteRead))
+     {
+       break;
+     }
+
+     delay(1);
+  }
+
+  uint32_t duration = (millis() - start);
+  DebugOut("readReply - Wait for " + String(duration) + "ms");
+
+  for (int i=0; (_sdsSerial->available() > 0) && (i < sizeof(ReplyType)); i++)
+  {
+    reply[i] = _sdsSerial->read(); 
+  }
+
+  clearSerial();
+}
+
+// --------------------------------------------------------
 // NovaSDS011:begin
 // --------------------------------------------------------
-void NovaSDS011::begin(uint8_t pin_rx, uint8_t pin_tx) {
+void NovaSDS011::begin(uint8_t pin_rx, uint8_t pin_tx, uint16_t wait_write_read) {
+  _waitWriteRead = wait_write_read;
   SoftwareSerial *softSerial = new SoftwareSerial(pin_rx, pin_tx);
 
   // Initialize soft serial bus
   softSerial->begin(9600);
   _sdsSerial = softSerial;
+  
+  clearSerial();
 }
 
 // --------------------------------------------------------
@@ -67,8 +117,6 @@ void NovaSDS011::begin(uint8_t pin_rx, uint8_t pin_tx) {
 // --------------------------------------------------------
 bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id)
 {
-  Serial.println("setDataReportingMode");
-
   ReplyType reply;
 
   REPORTTYPECMD[3] = 0x01; //Set reporting mode
@@ -79,14 +127,8 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
 		_sdsSerial->write(REPORTTYPECMD[i]);
 	}
 	_sdsSerial->flush();
-  delay(100);
 
-  for (int i=0; (_sdsSerial->available() > 0); i++)
-  {
-    reply[i] = _sdsSerial->read(); 
-  }
-
-  clearSerial();
+  readReply(reply);
 
   REPORTTYPEREPLY[3] = REPORTTYPECMD[3]; //Set reporting mode
   REPORTTYPEREPLY[4] = REPORTTYPECMD[4]; //Reporting mode
@@ -106,7 +148,8 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
   {
     if(REPORTTYPEREPLY[i] != reply[i])
     {
-      Serial.println("Error on byte " + String(i));
+      DebugOut("setDataReportingMode - Error on byte " + String(i) + " Recived byte=" +  String(reply[i]) + 
+      " Expected byte=" + String(REPORTTYPEREPLY[i]));
       return false;
     }
   }
@@ -118,7 +161,6 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
 // --------------------------------------------------------
 DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
 {
-  Serial.println("getDataReportingMode");
   ReplyType reply;
 
   REPORTTYPECMD[3] = 0x00; //Get reporting mode
@@ -130,14 +172,8 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
 		_sdsSerial->write(REPORTTYPECMD[i]);
 	}
 	_sdsSerial->flush();
-  delay(100);
-
-  for (int i=0; (_sdsSerial->available() > 0) && (i < sizeof(ReplyType)); i++)
-  {
-    reply[i] = _sdsSerial->read(); 
-  }
-
-  clearSerial();
+ 
+  readReply(reply);
 
   REPORTTYPEREPLY[3] = REPORTTYPECMD[3]; //Get reporting mode
   REPORTTYPEREPLY[4] = reply[4]; //Reporting mode
@@ -157,7 +193,8 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
   {
     if(REPORTTYPEREPLY[i] != reply[i])
     {
-      Serial.println("Error on byte " + String(i));
+      DebugOut("getDataReportingMode - Error on byte " + String(i) + " Recived byte=" +  String(reply[i]) + 
+      " Expected byte=" + String(REPORTTYPEREPLY[i]));
       return DataReportingMode::error;
     }
   }
@@ -179,12 +216,21 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
 // --------------------------------------------------------
 // NovaSDS011:queryData
 // --------------------------------------------------------
-bool NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
+QuerryError NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
 {
-  Serial.println("queryData");
+  static uint64_t lastCall = 0;
+  static uint16_t lastPM25 = 0;
+  static uint16_t lastPM10 = 0;
+
   ReplyType reply;  
 	uint16_t pm25Serial = 0;
   uint16_t pm10Serial = 0;
+
+  if(millis() < (lastCall + MIN_QUERY_INTERVAL))
+  {
+    return QuerryError::call_to_often;
+  }
+  lastCall = millis();
 
   QUERYCMD[15] = device_id & 0xFF;
   QUERYCMD[16] = (device_id>>8) & 0xFF;
@@ -194,14 +240,8 @@ bool NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
 		_sdsSerial->write(QUERYCMD[i]);
 	}
 	_sdsSerial->flush();
-  delay(100);
 
-  for (int i=0; (_sdsSerial->available() > 0) && (i < sizeof(ReplyType)); i++)
-  {
-    reply[i] = _sdsSerial->read(); 
-  }
-
-  clearSerial();
+  readReply(reply);
 
   QUERYREPLY[2] = reply[2]; //data byte 1 (PM2.5 low byte)
   QUERYREPLY[3] = reply[3]; //data byte 2 (PM2.5 high byte)
@@ -224,7 +264,9 @@ bool NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
   {
     if(QUERYREPLY[i] != reply[i])
     {
-      return false;
+      DebugOut("queryData - Error on byte " + String(i) + " Recived byte=" +  String(reply[i]) + 
+      " Expected byte=" + String(REPORTTYPEREPLY[i]));
+      return QuerryError::response_error;
     }
   }
 
@@ -233,10 +275,18 @@ bool NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
 	pm10Serial = reply[4]; 
 	pm10Serial += (reply[5] << 8); 
 
+  if((lastPM25 == pm25Serial) && (lastPM10 == pm10Serial))
+  {
+    return QuerryError::no_new_data;
+  }
+
+  lastPM25 = pm25Serial; 
+  lastPM10 = pm10Serial;
+
 	PM25 = (float)pm25Serial/10.0;
 	PM10 = (float)pm10Serial/10.0;
 
-  return true;
+  return QuerryError::no_error;
 }
 
 

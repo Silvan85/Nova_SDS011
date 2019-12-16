@@ -8,6 +8,7 @@
 
 NovaSDS011	KEYWORD1
 DataReportingMode	KEYWORD1
+QuerryErro	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -16,6 +17,7 @@ DataReportingMode	KEYWORD1
 begin   KEYWORD2
 setDataReportingMode	KEYWORD2
 getDataReportingMode	KEYWORD2
+queryData	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
