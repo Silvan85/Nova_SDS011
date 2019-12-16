@@ -26,8 +26,7 @@ void setup()
 void loop()
 {
   float p25, p10; 
-  int error = sds011.read(&p25, &p10);
-  if(!error)
+  if(sds011.queryData(p25, p10))
   {  
     Serial.println("PM2.5=" + String(p25) + ", PM10=" + String(p10));  
   }

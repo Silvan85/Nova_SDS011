@@ -15,6 +15,16 @@ NovaSDS011::NovaSDS011(void) {
 }
 
 // --------------------------------------------------------
+// NovaSDS011:clearSerial
+// --------------------------------------------------------
+void NovaSDS011::clearSerial()
+{
+  while (_sdsSerial->available() > 0) {
+		_sdsSerial->read();
+	}
+}
+
+// --------------------------------------------------------
 // NovaSDS011:calculateCheckSum
 // --------------------------------------------------------
 uint8_t NovaSDS011::calculateCommandCheckSum(CommandType cmd){
@@ -76,6 +86,8 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
     reply[i] = _sdsSerial->read(); 
   }
 
+  clearSerial();
+
   REPORTTYPEREPLY[3] = REPORTTYPECMD[3]; //Set reporting mode
   REPORTTYPEREPLY[4] = REPORTTYPECMD[4]; //Reporting mode
   if(device_id != 0xFFFF)
@@ -125,6 +137,8 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
     reply[i] = _sdsSerial->read(); 
   }
 
+  clearSerial();
+
   REPORTTYPEREPLY[3] = REPORTTYPECMD[3]; //Get reporting mode
   REPORTTYPEREPLY[4] = reply[4]; //Reporting mode
   if(device_id != 0xFFFF)
@@ -162,56 +176,77 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
   }  
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 // --------------------------------------------------------
-// NovaSDS011:read
+// NovaSDS011:queryData
 // --------------------------------------------------------
-int NovaSDS011::read(float *p25, float *p10) {
-	byte buffer;
-	int value;
-	int len = 0;
-	int pm10_serial = 0;
-	int pm25_serial = 0;
-	int checksum_is;
-	int checksum_ok = 0;
-	int error = 1;
-	while ((_sdsSerial->available() > 0) && (_sdsSerial->available() >= (10-len))) {
-		buffer = _sdsSerial->read();
-		value = int(buffer);
-		switch (len) {
-			case (0): if (value != 170) { len = -1; }; break;
-			case (1): if (value != 192) { len = -1; }; break;
-			case (2): pm25_serial = value; checksum_is = value; break;
-			case (3): pm25_serial += (value << 8); checksum_is += value; break;
-			case (4): pm10_serial = value; checksum_is += value; break;
-			case (5): pm10_serial += (value << 8); checksum_is += value; break;
-			case (6): checksum_is += value; break;
-			case (7): checksum_is += value; break;
-			case (8): if (value == (checksum_is % 256)) { checksum_ok = 1; } else { len = -1; }; break;
-			case (9): if (value != 171) { len = -1; }; break;
-		}
-		len++;
-		if (len == 10 && checksum_ok == 1) {
-			*p10 = (float)pm10_serial/10.0;
-			*p25 = (float)pm25_serial/10.0;
-			len = 0; checksum_ok = 0; pm10_serial = 0.0; pm25_serial = 0.0; checksum_is = 0;
-			error = 0;
-		}
-		yield();
+bool NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
+{
+  Serial.println("queryData");
+  ReplyType reply;  
+	uint16_t pm25Serial = 0;
+  uint16_t pm10Serial = 0;
+
+  QUERYCMD[15] = device_id & 0xFF;
+  QUERYCMD[16] = (device_id>>8) & 0xFF;
+  QUERYCMD[17] = calculateCommandCheckSum(QUERYCMD);
+
+	for (uint8_t i = 0; i < 19; i++) {
+		_sdsSerial->write(QUERYCMD[i]);
 	}
-	return error;
+	_sdsSerial->flush();
+  delay(100);
+
+  for (int i=0; (_sdsSerial->available() > 0) && (i < sizeof(ReplyType)); i++)
+  {
+    reply[i] = _sdsSerial->read(); 
+  }
+
+  clearSerial();
+
+  QUERYREPLY[2] = reply[2]; //data byte 1 (PM2.5 low byte)
+  QUERYREPLY[3] = reply[3]; //data byte 2 (PM2.5 high byte)
+  QUERYREPLY[4] = reply[4]; //data byte 3 (PM10 low byte)
+  QUERYREPLY[5] = reply[5]; //data byte 4 (PM10 high byte)
+
+  if(device_id != 0xFFFF)
+  {
+    QUERYREPLY[6] = REPORTTYPECMD[15]; //Device ID byte 1
+    QUERYREPLY[7] = REPORTTYPECMD[16]; //Device ID byte 2
+  }
+  else
+  {      
+    QUERYREPLY[6] = reply[6]; //Device ID byte 1
+    QUERYREPLY[7] = reply[7]; //Device ID byte 2  
+  }  
+  QUERYREPLY[8] = calculateReplyCheckSum(reply);
+
+  for (int i=0; i < sizeof(ReplyType); i++)
+  {
+    if(QUERYREPLY[i] != reply[i])
+    {
+      return false;
+    }
+  }
+
+  pm25Serial = reply[2]; 
+	pm25Serial += (reply[3] << 8); 
+	pm10Serial = reply[4]; 
+	pm10Serial += (reply[5] << 8); 
+
+	PM25 = (float)pm25Serial/10.0;
+	PM10 = (float)pm10Serial/10.0;
+
+  return true;
 }
+
+
+
+
+
+
+
+
+
 
 // --------------------------------------------------------
 // NovaSDS011:sleep

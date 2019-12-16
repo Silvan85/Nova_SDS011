@@ -37,6 +37,40 @@ static ReplyType REPORTTYPEREPLY = {
 	0xAB	// tail
 };
 
+static CommandType QUERYCMD = {
+	0xAA,	// head
+	0xB4,	// command id
+	0x04,	// data byte 1
+	0x00,	// data byte 2
+	0x00,	// data byte 3 
+	0x00,	// data byte 4
+	0x00,	// data byte 5
+	0x00,	// data byte 6
+	0x00,	// data byte 7
+	0x00,	// data byte 8
+	0x00,	// data byte 9
+	0x00,	// data byte 10
+	0x00,	// data byte 11
+	0x00,	// data byte 12
+	0x00,	// data byte 13
+	0xFF,	// data byte 14 (device id byte 1)
+	0xFF,	// data byte 15 (device id byte 2)
+	0x00,	// checksum
+	0xAB	// tail
+};
+
+static ReplyType QUERYREPLY = {
+	0xAA,	// head
+	0xC0,	// command id
+	0x00,	// data byte 1 (PM2.5 low byte)
+	0x00,	// data byte 2 (PM2.5 high byte)
+	0x00,	// data byte 3 (PM10 low byte)
+	0x00,	// data byte 4 (PM10 high byte)
+	0x00,	// data byte 5 (device id byte 1)
+	0x00,	// data byte 6 (device id byte 2)
+	0x00,	// checksum
+	0xAB	// tail
+};
 
 
 

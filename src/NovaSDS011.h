@@ -62,14 +62,15 @@ class NovaSDS011 {
 		DataReportingMode getDataReportingMode(uint16_t device_id = 0xFFFF);
 
 
+		bool queryData(float &PM25, float &PM10, uint16_t device_id = 0xFFFF);
+
+
 
 
 
 		void setDutyCycle(uint8_t duty_cycle);
 		uint8_t getDutyCycle();
-
-
-		int read(float *p25, float *p10);
+	
 	
 		void sleep();
 		void wakeup();
@@ -80,6 +81,7 @@ class NovaSDS011 {
 		void stop_SDS();
 		void set_initiative_SDS();
 	private:
+		void clearSerial();
 		/**
 		* Calculate checksum from given command.
 		* Checksum: Low 8bit of the sum result of Data Bytes（not including packet head, tail and
