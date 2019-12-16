@@ -1,4 +1,50 @@
-static const byte SLEEPCMD[19] = {
+#pragma once
+#include "NovaSDS011.h"
+
+
+static CommandType REPORTTYPECMD = {
+	0xAA,	// head
+	0xB4,	// command id
+	0x02,	// data byte 1
+	0x01,	// data byte 2 (0：query the current mode 1：set reporting mode)
+	0x00,	// data byte 3 (0：report active mode 1：Report query mode)
+	0x00,	// data byte 4
+	0x00,	// data byte 5
+	0x00,	// data byte 6
+	0x00,	// data byte 7
+	0x00,	// data byte 8
+	0x00,	// data byte 9
+	0x00,	// data byte 10
+	0x00,	// data byte 11
+	0x00,	// data byte 12
+	0x00,	// data byte 13
+	0xFF,	// data byte 14 (device id byte 1)
+	0xFF,	// data byte 15 (device id byte 2)
+	0x00,	// checksum
+	0xAB	// tail
+};
+
+static ReplyType REPORTTYPEREPLY = {
+	0xAA,	// head
+	0xC5,	// command id
+	0x02,	// data byte 1
+	0x01,	// data byte 2 (0：query the current mode 1：set reporting mode)
+	0x00,	// data byte 3 (0：report active mode 1：Report query mode)
+	0x00,	// data byte 4
+	0x00,	// data byte 5 (device id byte 1)
+	0x00,	// data byte 6 (device id byte 2)
+	0x00,	// checksum
+	0xAB	// tail
+};
+
+
+
+
+
+
+
+
+static const CommandType SLEEPCMD = {
 	0xAA,	// head
 	0xB4,	// command id
 	0x06,	// data byte 1
@@ -20,7 +66,7 @@ static const byte SLEEPCMD[19] = {
 	0xAB	// tail
 };
 
-static uint8_t DUTTYCMD[19] = {
+static CommandType DUTTYCMD = {
 	0xAA,	// head
 	0xB4,	// command id
 	0x08, 
@@ -43,7 +89,7 @@ static uint8_t DUTTYCMD[19] = {
 };
 
 
-static uint8_t VERSIONCMD[19] = {
+static CommandType VERSIONCMD = {
 	0xAA, 
 	0xB4, 
 	0x07, 

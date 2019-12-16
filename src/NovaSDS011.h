@@ -1,3 +1,5 @@
+#pragma once
+
 // NovaSDS011( sensor of PM2.5 and PM10 )
 // ---------------------------------
 //
@@ -16,13 +18,59 @@
 
 #include <SoftwareSerial.h>
 
+typedef uint8_t CommandType[19];
+typedef uint8_t ReplyType[10];
+
+enum DataReportingMode
+{
+	active = 0,
+	query = 1,
+	error = 0xFF
+};
 
 class NovaSDS011 {
 	public:
+		/**
+		* Constructor.
+		*/
 		NovaSDS011();
+		
+		/**
+		* Initialize comunication via serial bus.
+		* @param pin_rx 
+		* @param pin_tx 
+		*/
 		void begin(uint8_t pin_rx, uint8_t pin_tx);
-		int read(float *p25, float *p10);
+
+		/**
+		* Set raport mode.
+		* Report query mode：Sensor received query data command to report a measurement data.
+        * Report active mode：Sensor automatically reports a measurement data in a work period.
+		* @param mode choosen mode
+		* @param device_id device id (optional)
+		* @return true if operation was sucessfull 
+		*/
+		bool setDataReportingMode(DataReportingMode mode, uint16_t device_id = 0xFFFF);
+
+		/**
+		* Get raport mode.
+		* Report query mode：Sensor received query data command to report a measurement data.
+        * Report active mode：Sensor automatically reports a measurement data in a work period.
+		* @param device_id device id (optional)
+		* @return DataReportingMode
+		*/
+		DataReportingMode getDataReportingMode(uint16_t device_id = 0xFFFF);
+
+
+
+
+
 		void setDutyCycle(uint8_t duty_cycle);
+		uint8_t getDutyCycle();
+
+
+		int read(float *p25, float *p10);
+	
 		void sleep();
 		void wakeup();
 		
@@ -32,8 +80,31 @@ class NovaSDS011 {
 		void stop_SDS();
 		void set_initiative_SDS();
 	private:
-		uint8_t calculateCheckSum(byte cmd[19]);		
-		bool is_SDS_running = false;
-		uint8_t _pin_rx, _pin_tx;
-		Stream *sds_data;		
+		/**
+		* Calculate checksum from given command.
+		* Checksum: Low 8bit of the sum result of Data Bytes（not including packet head, tail and
+		* Command ID).
+		* @param cmd input command
+		* @return checksum value
+		*/
+		uint8_t calculateCommandCheckSum(CommandType cmd);			
+
+		/**
+		* Calculate checksum from given repry.
+		* Checksum: Low 8bit of the sum result of Data Bytes（not including packet head, tail and
+		* Command ID).
+		* @param cmd input reply
+		* @return checksum value
+		*/
+		uint8_t calculateReplyCheckSum(ReplyType reply);	
+
+		/**
+		* Current state of SDS011 sensor.
+		*/
+		bool _isSDSRunning = false;
+
+		/**
+		* Current state of SDS011 sensor.
+		*/
+		Stream *_sdsSerial;
 };
