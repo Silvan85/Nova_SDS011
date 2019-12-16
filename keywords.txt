@@ -6,13 +6,16 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-NovaSDS011	KEYWORD1
+NovaSDS011  KEYWORD1
+DataReportingMode   KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
-begin	KEYWORD2
+begin   KEYWORD2
+setDataReportingMode    KEYWORD2
+getDataReportingMode    KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

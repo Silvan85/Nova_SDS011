@@ -1,7 +1,4 @@
-#define TS_DELAY 60 * 100
 #include <NovaSDS011.h>
-
-bool is_SDS_running = true;
 
 #define SDS_PIN_RX 2
 #define SDS_PIN_TX 3
@@ -12,7 +9,16 @@ void setup()
 {
   Serial.begin(115200); // Output to Serial at 9600 baud
   sds011.begin(SDS_PIN_RX, SDS_PIN_TX);
-  sds011.setDutyCycle(1);
+
+  if(sds011.setDataReportingMode(DataReportingMode::active))
+  {
+    Serial.println("Success setting SDS011 Report Mode to Active.");
+  }
+  else
+  {
+    Serial.println("Fail setting SDS011 Report Mode to Active.");
+  }
+  
 }
 
 void loop()
