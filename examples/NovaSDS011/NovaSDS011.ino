@@ -18,7 +18,9 @@ void setup()
   {
     Serial.println("Fail setting SDS011 Report Mode to Active.");
   }
-  
+
+  DataReportingMode reportMode = sds011.getDataReportingMode();  
+  Serial.println("Current SDS011 Report Mode is " + String(reportMode) + ".");
 }
 
 void loop()
