@@ -1,7 +1,7 @@
 #pragma once
 #include "NovaSDS011.h"
 
-static CommandType REPORTTYPECMD = {
+static CommandType REPORT_TYPE_CMD = {
 	0xAA, // head
 	0xB4, // command id
 	0x02, // data byte 1
@@ -23,7 +23,7 @@ static CommandType REPORTTYPECMD = {
 	0xAB  // tail
 };
 
-static ReplyType REPORTTYPEREPLY = {
+static ReplyType REPORT_TYPE_REPLY = {
 	0xAA, // head
 	0xC5, // command id
 	0x02, // data byte 1
@@ -36,7 +36,7 @@ static ReplyType REPORTTYPEREPLY = {
 	0xAB  // tail
 };
 
-static CommandType QUERYCMD = {
+static CommandType QUERY_CMD = {
 	0xAA, // head
 	0xB4, // command id
 	0x04, // data byte 1
@@ -58,7 +58,7 @@ static CommandType QUERYCMD = {
 	0xAB  // tail
 };
 
-static ReplyType QUERYREPLY = {
+static ReplyType QUERY_REPLY = {
 	0xAA, // head
 	0xC0, // command id
 	0x00, // data byte 1 (PM2.5 low byte)
@@ -71,7 +71,7 @@ static ReplyType QUERYREPLY = {
 	0xAB  // tail
 };
 
-static CommandType SETIDCMD = {
+static CommandType SET_ID_CMD = {
 	0xAA, // head
 	0xB4, // command id
 	0x05, // data byte 1
@@ -93,7 +93,7 @@ static CommandType SETIDCMD = {
 	0xAB  // tail
 };
 
-static ReplyType SETIDREPLY = {
+static ReplyType SET_ID_REPLY = {
 	0xAA, // head
 	0xC5, // command id
 	0x05, // data byte 1 
@@ -107,18 +107,12 @@ static ReplyType SETIDREPLY = {
 };
 
 
-
-
-
-
-
-
-static const CommandType SLEEPCMD = {
+static  CommandType WORKING_MODE_CMD = {
 	0xAA, // head
 	0xB4, // command id
 	0x06, // data byte 1
-	0x01, // data byte 2 (set mode)
-	0x00, // data byte 3 (sleep)
+	0x01, // data byte 2 (0：query the current mode 1：set reporting mode)
+	0x00, // data byte 3 (0: sleep 1: work)
 	0x00, // data byte 4
 	0x00, // data byte 5
 	0x00, // data byte 6
@@ -131,7 +125,20 @@ static const CommandType SLEEPCMD = {
 	0x00, // data byte 13
 	0xFF, // data byte 14 (device id byte 1)
 	0xFF, // data byte 15 (device id byte 2)
-	0x05, // checksum
+	0x00, // checksum
+	0xAB  // tail
+};
+
+static ReplyType WORKING_MODE_REPLY = {
+	0xAA, // head
+	0xC5, // command id
+	0x06, // data byte 1 
+	0x00, // data byte 2 (0：query the current mode 1：set reporting mode)
+	0x00, // data byte 3 (0: sleep 1: work)
+	0x00, // data byte 4 
+	0x00, // data byte 5 (device id byte 1)
+	0x00, // data byte 6 (device id byte 2)
+	0x00, // checksum
 	0xAB  // tail
 };
 

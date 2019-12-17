@@ -11,24 +11,25 @@
 #include "NovaSDS011.h"
 #include "Commands.h"
 
-//#define PRINT_DEBUG
+#define PRINT_DEBUG
 #define MIN_QUERY_INTERVAL 3000
 
 // --------------------------------------------------------
 // Debug output
 // --------------------------------------------------------
-void DebugOut(const String &text, bool linebreak = true)
+void NovaSDS011::DebugOut(const String &text, bool linebreak)
 {
-#ifdef PRINT_DEBUG
-  if (linebreak)
+  if (_enableDebug)
   {
-    Serial.println(text);
+    if (linebreak)
+    {
+      Serial.println(text);
+    }
+    else
+    {
+      Serial.print(text);
+    }
   }
-  else
-  {
-    Serial.print(text);
-  }
-#endif
 }
 
 NovaSDS011::NovaSDS011(void)
@@ -78,8 +79,10 @@ uint8_t NovaSDS011::calculateReplyCheckSum(ReplyType reply)
 // --------------------------------------------------------
 // NovaSDS011:readReply
 // --------------------------------------------------------
-void NovaSDS011::readReply(ReplyType &reply)
+bool NovaSDS011::readReply(ReplyType &reply)
 {
+  bool timeout = true;
+
   uint64_t start = millis();
   while (_sdsSerial->available() == 0)
   {
@@ -97,9 +100,14 @@ void NovaSDS011::readReply(ReplyType &reply)
   for (int i = 0; (_sdsSerial->available() > 0) && (i < sizeof(ReplyType)); i++)
   {
     reply[i] = _sdsSerial->read();
+    if (i == (sizeof(ReplyType) - 1))
+    {
+      timeout = false;
+    }
   }
 
   clearSerial();
+  return timeout;
 }
 
 // --------------------------------------------------------
@@ -124,40 +132,45 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
 {
   ReplyType reply;
 
-  REPORTTYPECMD[3] = 0x01; //Set reporting mode
-  REPORTTYPECMD[4] = uint8_t(mode & 0xFF);
-  REPORTTYPECMD[15] = device_id & 0xFF;
-  REPORTTYPECMD[16] = (device_id >> 8) & 0xFF;
-  REPORTTYPECMD[17] = calculateCommandCheckSum(REPORTTYPECMD);
+  REPORT_TYPE_CMD[3] = 0x01; //Set reporting mode
+  REPORT_TYPE_CMD[4] = uint8_t(mode & 0xFF);
+  REPORT_TYPE_CMD[15] = device_id & 0xFF;
+  REPORT_TYPE_CMD[16] = (device_id >> 8) & 0xFF;
+  REPORT_TYPE_CMD[17] = calculateCommandCheckSum(REPORT_TYPE_CMD);
 
   for (uint8_t i = 0; i < 19; i++)
   {
-    _sdsSerial->write(REPORTTYPECMD[i]);
+    _sdsSerial->write(REPORT_TYPE_CMD[i]);
   }
   _sdsSerial->flush();
 
+  if (readReply(reply))
+  {
+    DebugOut("setDataReportingMode - Error read reply timeout");
+    return false;
+  }
   readReply(reply);
 
-  REPORTTYPEREPLY[3] = REPORTTYPECMD[3]; //Set reporting mode
-  REPORTTYPEREPLY[4] = REPORTTYPECMD[4]; //Reporting mode
+  REPORT_TYPE_REPLY[3] = REPORT_TYPE_CMD[3]; //Set reporting mode
+  REPORT_TYPE_REPLY[4] = REPORT_TYPE_CMD[4]; //Reporting mode
   if (device_id != 0xFFFF)
   {
-    REPORTTYPEREPLY[6] = REPORTTYPECMD[15]; //Device ID byte 1
-    REPORTTYPEREPLY[7] = REPORTTYPECMD[16]; //Device ID byte 2
+    REPORT_TYPE_REPLY[6] = REPORT_TYPE_CMD[15]; //Device ID byte 1
+    REPORT_TYPE_REPLY[7] = REPORT_TYPE_CMD[16]; //Device ID byte 2
   }
   else
   {
-    REPORTTYPEREPLY[6] = reply[6]; //Device ID byte 1
-    REPORTTYPEREPLY[7] = reply[7]; //Device ID byte 2
+    REPORT_TYPE_REPLY[6] = reply[6]; //Device ID byte 1
+    REPORT_TYPE_REPLY[7] = reply[7]; //Device ID byte 2
   }
-  REPORTTYPEREPLY[8] = calculateReplyCheckSum(reply);
+  REPORT_TYPE_REPLY[8] = calculateReplyCheckSum(reply);
 
   for (int i = 0; i < sizeof(ReplyType); i++)
   {
-    if (REPORTTYPEREPLY[i] != reply[i])
+    if (REPORT_TYPE_REPLY[i] != reply[i])
     {
       DebugOut("setDataReportingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
-               " Expected byte=" + String(REPORTTYPEREPLY[i]));
+               " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
       return false;
     }
   }
@@ -171,40 +184,44 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
 {
   ReplyType reply;
 
-  REPORTTYPECMD[3] = 0x00; //Get reporting mode
-  REPORTTYPECMD[15] = device_id & 0xFF;
-  REPORTTYPECMD[16] = (device_id >> 8) & 0xFF;
-  REPORTTYPECMD[17] = calculateCommandCheckSum(REPORTTYPECMD);
+  REPORT_TYPE_CMD[3] = 0x00; //Get reporting mode
+  REPORT_TYPE_CMD[15] = device_id & 0xFF;
+  REPORT_TYPE_CMD[16] = (device_id >> 8) & 0xFF;
+  REPORT_TYPE_CMD[17] = calculateCommandCheckSum(REPORT_TYPE_CMD);
 
   for (uint8_t i = 0; i < 19; i++)
   {
-    _sdsSerial->write(REPORTTYPECMD[i]);
+    _sdsSerial->write(REPORT_TYPE_CMD[i]);
   }
   _sdsSerial->flush();
 
-  readReply(reply);
+  if (readReply(reply))
+  {
+    DebugOut("getDataReportingMode - Error read reply timeout");
+    return DataReportingMode::report_error;
+  }
 
-  REPORTTYPEREPLY[3] = REPORTTYPECMD[3]; //Get reporting mode
-  REPORTTYPEREPLY[4] = reply[4];         //Reporting mode
+  REPORT_TYPE_REPLY[3] = REPORT_TYPE_CMD[3]; //Get reporting mode
+  REPORT_TYPE_REPLY[4] = reply[4];           //Reporting mode
   if (device_id != 0xFFFF)
   {
-    REPORTTYPEREPLY[6] = REPORTTYPECMD[15]; //Device ID byte 1
-    REPORTTYPEREPLY[7] = REPORTTYPECMD[16]; //Device ID byte 2
+    REPORT_TYPE_REPLY[6] = REPORT_TYPE_CMD[15]; //Device ID byte 1
+    REPORT_TYPE_REPLY[7] = REPORT_TYPE_CMD[16]; //Device ID byte 2
   }
   else
   {
-    REPORTTYPEREPLY[6] = reply[6]; //Device ID byte 1
-    REPORTTYPEREPLY[7] = reply[7]; //Device ID byte 2
+    REPORT_TYPE_REPLY[6] = reply[6]; //Device ID byte 1
+    REPORT_TYPE_REPLY[7] = reply[7]; //Device ID byte 2
   }
-  REPORTTYPEREPLY[8] = calculateReplyCheckSum(reply);
+  REPORT_TYPE_REPLY[8] = calculateReplyCheckSum(reply);
 
   for (int i = 0; i < sizeof(ReplyType); i++)
   {
-    if (REPORTTYPEREPLY[i] != reply[i])
+    if (REPORT_TYPE_REPLY[i] != reply[i])
     {
       DebugOut("getDataReportingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
-               " Expected byte=" + String(REPORTTYPEREPLY[i]));
-      return DataReportingMode::error;
+               " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
+      return DataReportingMode::report_error;
     }
   }
 
@@ -218,7 +235,7 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
   }
   else
   {
-    return DataReportingMode::error;
+    return DataReportingMode::report_error;
   }
 }
 
@@ -241,41 +258,45 @@ QuerryError NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
   }
   lastCall = millis();
 
-  QUERYCMD[15] = device_id & 0xFF;
-  QUERYCMD[16] = (device_id >> 8) & 0xFF;
-  QUERYCMD[17] = calculateCommandCheckSum(QUERYCMD);
+  QUERY_CMD[15] = device_id & 0xFF;
+  QUERY_CMD[16] = (device_id >> 8) & 0xFF;
+  QUERY_CMD[17] = calculateCommandCheckSum(QUERY_CMD);
 
   for (uint8_t i = 0; i < 19; i++)
   {
-    _sdsSerial->write(QUERYCMD[i]);
+    _sdsSerial->write(QUERY_CMD[i]);
   }
   _sdsSerial->flush();
 
-  readReply(reply);
+  if (readReply(reply))
+  {
+    DebugOut("queryData - Error read reply timeout");
+    return QuerryError::response_error;
+  }
 
-  QUERYREPLY[2] = reply[2]; //data byte 1 (PM2.5 low byte)
-  QUERYREPLY[3] = reply[3]; //data byte 2 (PM2.5 high byte)
-  QUERYREPLY[4] = reply[4]; //data byte 3 (PM10 low byte)
-  QUERYREPLY[5] = reply[5]; //data byte 4 (PM10 high byte)
+  QUERY_REPLY[2] = reply[2]; //data byte 1 (PM2.5 low byte)
+  QUERY_REPLY[3] = reply[3]; //data byte 2 (PM2.5 high byte)
+  QUERY_REPLY[4] = reply[4]; //data byte 3 (PM10 low byte)
+  QUERY_REPLY[5] = reply[5]; //data byte 4 (PM10 high byte)
 
   if (device_id != 0xFFFF)
   {
-    QUERYREPLY[6] = QUERYCMD[15]; //Device ID byte 1
-    QUERYREPLY[7] = QUERYCMD[16]; //Device ID byte 2
+    QUERY_REPLY[6] = QUERY_CMD[15]; //Device ID byte 1
+    QUERY_REPLY[7] = QUERY_CMD[16]; //Device ID byte 2
   }
   else
   {
-    QUERYREPLY[6] = reply[6]; //Device ID byte 1
-    QUERYREPLY[7] = reply[7]; //Device ID byte 2
+    QUERY_REPLY[6] = reply[6]; //Device ID byte 1
+    QUERY_REPLY[7] = reply[7]; //Device ID byte 2
   }
-  QUERYREPLY[8] = calculateReplyCheckSum(reply);
+  QUERY_REPLY[8] = calculateReplyCheckSum(reply);
 
   for (int i = 0; i < sizeof(ReplyType); i++)
   {
-    if (QUERYREPLY[i] != reply[i])
+    if (QUERY_REPLY[i] != reply[i])
     {
       DebugOut("queryData - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
-               " Expected byte=" + String(REPORTTYPEREPLY[i]));
+               " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
       return QuerryError::response_error;
     }
   }
@@ -299,7 +320,6 @@ QuerryError NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
   return QuerryError::no_error;
 }
 
-
 // --------------------------------------------------------
 // NovaSDS011:setDeviceID
 // --------------------------------------------------------
@@ -307,66 +327,155 @@ bool NovaSDS011::setDeviceID(uint16_t new_device_id, uint16_t device_id)
 {
   ReplyType reply;
 
-  SETIDCMD[13] = new_device_id & 0xFF;
-  SETIDCMD[14] = (new_device_id >> 8) & 0xFF;
-  SETIDCMD[15] = device_id & 0xFF;
-  SETIDCMD[16] = (device_id >> 8) & 0xFF;
-  SETIDCMD[17] = calculateCommandCheckSum(SETIDCMD);
+  SET_ID_CMD[13] = new_device_id & 0xFF;
+  SET_ID_CMD[14] = (new_device_id >> 8) & 0xFF;
+  SET_ID_CMD[15] = device_id & 0xFF;
+  SET_ID_CMD[16] = (device_id >> 8) & 0xFF;
+  SET_ID_CMD[17] = calculateCommandCheckSum(SET_ID_CMD);
 
   for (uint8_t i = 0; i < 19; i++)
   {
-    _sdsSerial->write(SETIDCMD[i]);
+    _sdsSerial->write(SET_ID_CMD[i]);
   }
   _sdsSerial->flush();
 
-  readReply(reply);
+  if (readReply(reply))
+  {
+    DebugOut("setDeviceID - Error read reply timeout");
+    return false;
+  }
 
-  SETIDREPLY[6] = SETIDCMD[13]; //Device ID byte 1
-  SETIDREPLY[7] = SETIDCMD[14]; //Device ID byte 2
+  SET_ID_REPLY[6] = SET_ID_CMD[13]; //Device ID byte 1
+  SET_ID_REPLY[7] = SET_ID_CMD[14]; //Device ID byte 2
 
-  SETIDREPLY[8] = calculateReplyCheckSum(reply);
+  SET_ID_REPLY[8] = calculateReplyCheckSum(reply);
 
   for (int i = 0; i < sizeof(ReplyType); i++)
   {
-    if (SETIDREPLY[i] != reply[i])
+    if (SET_ID_REPLY[i] != reply[i])
     {
       DebugOut("setDeviceID - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
-               " Expected byte=" + String(REPORTTYPEREPLY[i]));
+               " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
       return false;
     }
   }
   return true;
 }
 
-
-
-
-
-
-
 // --------------------------------------------------------
-// NovaSDS011:sleep
+// NovaSDS011:setWorkingMode
 // --------------------------------------------------------
-void NovaSDS011::sleep()
+bool NovaSDS011::setWorkingMode(WorkingMode mode, uint16_t device_id)
 {
+  ReplyType reply;
+  bool timeout;
+
+  WORKING_MODE_CMD[3] = 0x01; //Set reporting mode
+  WORKING_MODE_CMD[4] = uint8_t(mode & 0xFF);
+  WORKING_MODE_CMD[15] = device_id & 0xFF;
+  WORKING_MODE_CMD[16] = (device_id >> 8) & 0xFF;
+  WORKING_MODE_CMD[17] = calculateCommandCheckSum(WORKING_MODE_CMD);
+
   for (uint8_t i = 0; i < 19; i++)
   {
-    _sdsSerial->write(SLEEPCMD[i]);
+    _sdsSerial->write(WORKING_MODE_CMD[i]);
   }
   _sdsSerial->flush();
-  while (_sdsSerial->available() > 0)
+
+  timeout = readReply(reply);
+
+  if ((mode == WorkingMode::sleep) && (timeout))
   {
-    _sdsSerial->read();
+    DebugOut("setWorkingMode - Read timeout");
+    return true;
   }
+
+  WORKING_MODE_REPLY[3] = WORKING_MODE_CMD[3]; //Set reporting mode
+  WORKING_MODE_REPLY[4] = WORKING_MODE_CMD[4]; //Reporting mode
+  if (device_id != 0xFFFF)
+  {
+    WORKING_MODE_REPLY[6] = WORKING_MODE_REPLY[15]; //Device ID byte 1
+    WORKING_MODE_REPLY[7] = WORKING_MODE_REPLY[16]; //Device ID byte 2
+  }
+  else
+  {
+    WORKING_MODE_REPLY[6] = reply[6]; //Device ID byte 1
+    WORKING_MODE_REPLY[7] = reply[7]; //Device ID byte 2
+  }
+  WORKING_MODE_REPLY[8] = calculateReplyCheckSum(reply);
+
+  for (int i = 0; i < sizeof(ReplyType); i++)
+  {
+    if (WORKING_MODE_REPLY[i] != reply[i])
+    {
+      DebugOut("setWorkingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+               " Expected byte=" + String(WORKING_MODE_REPLY[i]));
+      return false;
+    }
+  }
+  return true;
 }
 
 // --------------------------------------------------------
-// NovaSDS011:wakeup
+// NovaSDS011:getWorkingMode
 // --------------------------------------------------------
-void NovaSDS011::wakeup()
+WorkingMode NovaSDS011::getWorkingMode(uint16_t device_id)
 {
-  _sdsSerial->write(0x01);
+  ReplyType reply;
+
+  WORKING_MODE_CMD[3] = 0x00; //Get reporting mode
+  WORKING_MODE_CMD[15] = device_id & 0xFF;
+  WORKING_MODE_CMD[16] = (device_id >> 8) & 0xFF;
+  WORKING_MODE_CMD[17] = calculateCommandCheckSum(WORKING_MODE_CMD);
+
+  for (uint8_t i = 0; i < 19; i++)
+  {
+    _sdsSerial->write(WORKING_MODE_CMD[i]);
+  }
   _sdsSerial->flush();
+
+  if (readReply(reply))
+  {
+    DebugOut("getWorkingMode - Error read reply timeout");
+    return WorkingMode::working_error;
+  }
+
+  WORKING_MODE_REPLY[3] = WORKING_MODE_CMD[3]; //Get reporting mode
+  WORKING_MODE_REPLY[4] = reply[4];              //Reporting mode
+  if (device_id != 0xFFFF)
+  {
+    WORKING_MODE_REPLY[6] = WORKING_MODE_CMD[15]; //Device ID byte 1
+    WORKING_MODE_REPLY[7] = WORKING_MODE_CMD[16]; //Device ID byte 2
+  }
+  else
+  {
+    WORKING_MODE_REPLY[6] = reply[6]; //Device ID byte 1
+    WORKING_MODE_REPLY[7] = reply[7]; //Device ID byte 2
+  }
+  WORKING_MODE_REPLY[8] = calculateReplyCheckSum(reply);
+
+  for (int i = 0; i < sizeof(ReplyType); i++)
+  {
+    if (WORKING_MODE_REPLY[i] != reply[i])
+    {
+      DebugOut("getWorkingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+               " Expected byte=" + String(WORKING_MODE_REPLY[i]));
+      return WorkingMode::working_error;
+    }
+  }
+
+  if (reply[4] == WorkingMode::sleep)
+  {
+    return WorkingMode::sleep;
+  }
+  else if (reply[4] == WorkingMode::work)
+  {
+    return WorkingMode::work;
+  }
+  else
+  {
+    return WorkingMode::working_error;
+  }
 }
 
 // --------------------------------------------------------

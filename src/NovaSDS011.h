@@ -25,7 +25,7 @@ enum DataReportingMode
 {
 	active = 0,
 	query = 1,
-	error = 0xFF
+	report_error = 0xFF
 };
 
 enum QuerryError
@@ -34,6 +34,13 @@ enum QuerryError
 	no_new_data = 1,
 	response_error = 2,
 	call_to_often = 3
+};
+
+enum WorkingMode
+{
+	sleep = 0,
+	work = 1,
+	working_error = 0xFF
 };
 
 class NovaSDS011
@@ -91,13 +98,14 @@ public:
 	bool setDeviceID(uint16_t new_device_id, uint16_t device_id = 0xFFFF);
 
 
+	bool setWorkingMode(WorkingMode mode, uint16_t device_id = 0xFFFF);
+
+	WorkingMode getWorkingMode(uint16_t device_id = 0xFFFF);
 
 
 	void setDutyCycle(uint8_t duty_cycle);
 	uint8_t getDutyCycle();
 
-	void sleep();
-	void wakeup();
 
 	String SDS_version_date();
 	void start_SDS();
@@ -128,8 +136,11 @@ private:
 		* Wait up to _waitWriteRead ms for replay to arrive the read it into &reply. 
 		* Command ID).
 		* @param [out] reply place for reply
+		* @return if timeout
 		*/
-	void readReply(ReplyType &reply);
+	bool readReply(ReplyType &reply);
+
+	void DebugOut(const String &text, bool linebreak = true);
 
 	/**
 		* Max time to wait for respons after sending command to sensor.
@@ -145,4 +156,6 @@ private:
 		* Current state of SDS011 sensor.
 		*/
 	Stream *_sdsSerial;
+
+	bool _enableDebug = true;
 };
