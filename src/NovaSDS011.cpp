@@ -7,34 +7,34 @@
 // Documentation:
 //		- The iNovaFitness NovaSDS(datasheet)
 //
-
 #include "NovaSDS011.h"
 #include "Commands.h"
 
-#define PRINT_DEBUG
 #define MIN_QUERY_INTERVAL 3000
+
+// --------------------------------------------------------
+// NovaSDS011:constructor
+// --------------------------------------------------------
+NovaSDS011::NovaSDS011(void)
+{
+}
 
 // --------------------------------------------------------
 // Debug output
 // --------------------------------------------------------
+#ifndef NO_TRACES
 void NovaSDS011::DebugOut(const String &text, bool linebreak)
 {
-  if (_enableDebug)
+  if (linebreak)
   {
-    if (linebreak)
-    {
-      Serial.println(text);
-    }
-    else
-    {
-      Serial.print(text);
-    }
+    Serial.println(text);
+  }
+  else
+  {
+    Serial.print(text);
   }
 }
-
-NovaSDS011::NovaSDS011(void)
-{
-}
+#endif
 
 // --------------------------------------------------------
 // NovaSDS011:clearSerial
@@ -95,7 +95,9 @@ bool NovaSDS011::readReply(ReplyType &reply)
   }
 
   uint32_t duration = (millis() - start);
+#ifndef NO_TRACES
   DebugOut("readReply - Wait for " + String(duration) + "ms");
+#endif
 
   for (int i = 0; (_sdsSerial->available() > 0) && (i < sizeof(ReplyType)); i++)
   {
@@ -169,8 +171,10 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
   {
     if (REPORT_TYPE_REPLY[i] != reply[i])
     {
+#ifndef NO_TRACES
       DebugOut("setDataReportingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
                " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
+#endif
       return false;
     }
   }
@@ -197,7 +201,9 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
 
   if (readReply(reply))
   {
+#ifndef NO_TRACES
     DebugOut("getDataReportingMode - Error read reply timeout");
+#endif
     return DataReportingMode::report_error;
   }
 
@@ -219,8 +225,10 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
   {
     if (REPORT_TYPE_REPLY[i] != reply[i])
     {
+#ifndef NO_TRACES
       DebugOut("getDataReportingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
                " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
+#endif
       return DataReportingMode::report_error;
     }
   }
@@ -270,7 +278,9 @@ QuerryError NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
 
   if (readReply(reply))
   {
+#ifndef NO_TRACES
     DebugOut("queryData - Error read reply timeout");
+#endif
     return QuerryError::response_error;
   }
 
@@ -295,8 +305,10 @@ QuerryError NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
   {
     if (QUERY_REPLY[i] != reply[i])
     {
+#ifndef NO_TRACES
       DebugOut("queryData - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
                " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
+#endif
       return QuerryError::response_error;
     }
   }
@@ -341,7 +353,9 @@ bool NovaSDS011::setDeviceID(uint16_t new_device_id, uint16_t device_id)
 
   if (readReply(reply))
   {
+#ifndef NO_TRACES
     DebugOut("setDeviceID - Error read reply timeout");
+#endif
     return false;
   }
 
@@ -386,7 +400,9 @@ bool NovaSDS011::setWorkingMode(WorkingMode mode, uint16_t device_id)
 
   if ((mode == WorkingMode::sleep) && (timeout))
   {
+#ifndef NO_TRACES
     DebugOut("setWorkingMode - Read timeout");
+#endif
     return true;
   }
 
@@ -408,8 +424,10 @@ bool NovaSDS011::setWorkingMode(WorkingMode mode, uint16_t device_id)
   {
     if (WORKING_MODE_REPLY[i] != reply[i])
     {
+#ifndef NO_TRACES
       DebugOut("setWorkingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
                " Expected byte=" + String(WORKING_MODE_REPLY[i]));
+#endif
       return false;
     }
   }
@@ -436,7 +454,9 @@ WorkingMode NovaSDS011::getWorkingMode(uint16_t device_id)
 
   if (readReply(reply))
   {
+#ifndef NO_TRACES
     DebugOut("getWorkingMode - Error read reply timeout");
+#endif
     return WorkingMode::working_error;
   }
 
@@ -458,8 +478,10 @@ WorkingMode NovaSDS011::getWorkingMode(uint16_t device_id)
   {
     if (WORKING_MODE_REPLY[i] != reply[i])
     {
+#ifndef NO_TRACES
       DebugOut("getWorkingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
                " Expected byte=" + String(WORKING_MODE_REPLY[i]));
+#endif
       return WorkingMode::working_error;
     }
   }
@@ -505,7 +527,9 @@ bool NovaSDS011::setDutyCycle(uint8_t duty_cycle, uint16_t device_id)
 
   if (readReply(reply))
   {
+#ifndef NO_TRACES
     DebugOut("setDutyCycle - Error read reply timeout");
+#endif
     return false;
   }
 
@@ -527,8 +551,10 @@ bool NovaSDS011::setDutyCycle(uint8_t duty_cycle, uint16_t device_id)
   {
     if (DUTY_CYCLE_REPLY[i] != reply[i])
     {
+#ifndef NO_TRACES
       DebugOut("setDutyCycle - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
                " Expected byte=" + String(DUTY_CYCLE_REPLY[i]));
+#endif
       return false;
     }
   }
@@ -555,7 +581,9 @@ uint8_t NovaSDS011::getDutyCycle(uint16_t device_id)
 
   if (readReply(reply))
   {
+#ifndef NO_TRACES
     DebugOut("getDutyCycle - Error read reply timeout");
+#endif
     return WorkingMode::working_error;
   }
 
@@ -577,8 +605,10 @@ uint8_t NovaSDS011::getDutyCycle(uint16_t device_id)
   {
     if (DUTY_CYCLE_REPLY[i] != reply[i])
     {
+#ifndef NO_TRACES
       DebugOut("getDutyCycle - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
                " Expected byte=" + String(DUTY_CYCLE_REPLY[i]));
+#endif
       return WorkingMode::working_error;
     }
   }
@@ -612,14 +642,16 @@ SDS011Version NovaSDS011::getVersionDate(int16_t device_id)
 
   if (readReply(reply))
   {
+#ifndef NO_TRACES
     DebugOut("getVersionDate - Error read reply timeout");
+#endif
     return {0, 0, 0};
   }
 
   VERSION_REPLY[3] = reply[3]; //Get reporting mode
   VERSION_REPLY[4] = reply[4]; //Reporting mode
-  VERSION_REPLY[5] = reply[5]; //Reporting 
-  
+  VERSION_REPLY[5] = reply[5]; //Reporting
+
   if (device_id != 0xFFFF)
   {
     VERSION_REPLY[6] = VERSION_CMD[15]; //Device ID byte 1
@@ -636,8 +668,10 @@ SDS011Version NovaSDS011::getVersionDate(int16_t device_id)
   {
     if (VERSION_REPLY[i] != reply[i])
     {
+#ifndef NO_TRACES
       DebugOut("getVersionDate - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
                " Expected byte=" + String(VERSION_REPLY[i]));
+#endif
       return {0, 0, 0};
     }
   }

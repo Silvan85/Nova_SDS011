@@ -18,6 +18,8 @@
 
 #include <SoftwareSerial.h>
 
+//#define NO_TRACES
+
 typedef uint8_t CommandType[19];
 typedef uint8_t ReplyType[10];
 
@@ -115,7 +117,6 @@ public:
 	uint8_t getDutyCycle(uint16_t device_id = 0xFFFF);
 
 	SDS011Version getVersionDate(int16_t device_id = 0xFFFF);
-
 private:
 	void clearSerial();
 	/**
@@ -160,6 +161,4 @@ private:
 		* Current state of SDS011 sensor.
 		*/
 	Stream *_sdsSerial;
-
-	bool _enableDebug = true;
 };
