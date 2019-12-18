@@ -10,6 +10,7 @@ NovaSDS011	KEYWORD1
 DataReportingMode	KEYWORD1
 QuerryErro	KEYWORD1
 WorkingMode	KEYWORD1
+SDS011Version	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

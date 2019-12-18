@@ -112,19 +112,56 @@ void testSetDeviceID(uint16_t device_id = 0xFFFF)
   Serial.println("Success: testSetDeviceID");
 }
 
+void testDataDutyCycle(uint16_t device_id = 0xFFFF)
+{
+  Serial.println("Start: testDataDutyCycle with ID " + String(device_id));
+
+  // Test Set to 20
+  if (!sds011.setDutyCycle(20, device_id))
+  {
+    Serial.println("Fail: setting SDS011 duty cycle to 20.");
+    return;
+  }
+  uint8_t dutyCycle = sds011.getDutyCycle(device_id);
+  if (dutyCycle == 0xFF)
+  {
+    Serial.println("Fail: gettin SDS011 duty cycle.");
+    return;
+  }
+  else if (dutyCycle != 20)
+  {
+    Serial.println("Fail: SDS011 duty cycle not set. Expected 20 get " + String(dutyCycle));
+    return;
+  }
+
+  // Test Set to 0
+  if (!sds011.setDutyCycle(0, device_id))
+  {
+    Serial.println("Fail: setting SDS011 duty cycle to 0.");
+    return;
+  }
+
+  Serial.println("Success: testDataDutyCycle");
+}
+
 void setup()
 {
   Serial.begin(115200); // Output to Serial at 9600 baud
   sds011.begin(SDS_PIN_RX, SDS_PIN_TX);
 
+  SDS011Version version = sds011.getVersionDate();
+
+  Serial.println("SDS011 Firmware Vesion:\nYear: " + String(version.year) + "\nMonth: " + 
+    String(version.month) + "\nDay: " + String(version.day));
+
   uint16_t deviceID = 0xAAAA;
 
-  testDataReportingMode();
-  testDataWorkingMode();
+  //testDataReportingMode();
+  //testDataWorkingMode();
 
-  testSetDeviceID(deviceID);
-  //testDataReportingMode(deviceID);
-  //testDataWorkingMode(deviceID);
+  testDataDutyCycle();
+
+  //testSetDeviceID(deviceID);
 }
 
 void loop()

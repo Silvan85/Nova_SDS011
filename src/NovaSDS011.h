@@ -43,6 +43,14 @@ enum WorkingMode
 	working_error = 0xFF
 };
 
+struct SDS011Version
+{
+	uint8_t year;
+	uint8_t month;
+	uint8_t day;
+};
+
+
 class NovaSDS011
 {
 public:
@@ -102,15 +110,11 @@ public:
 
 	WorkingMode getWorkingMode(uint16_t device_id = 0xFFFF);
 
+	bool setDutyCycle(uint8_t duty_cycle, uint16_t device_id = 0xFFFF);
 
-	void setDutyCycle(uint8_t duty_cycle);
-	uint8_t getDutyCycle();
+	uint8_t getDutyCycle(uint16_t device_id = 0xFFFF);
 
-
-	String SDS_version_date();
-	void start_SDS();
-	void stop_SDS();
-	void set_initiative_SDS();
+	SDS011Version getVersionDate(int16_t device_id = 0xFFFF);
 
 private:
 	void clearSerial();

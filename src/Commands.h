@@ -142,46 +142,72 @@ static ReplyType WORKING_MODE_REPLY = {
 	0xAB  // tail
 };
 
-static CommandType DUTTYCMD = {
+static  CommandType DUTY_CYCLE_CMD = {
 	0xAA, // head
 	0xB4, // command id
-	0x08,
-	0x01,
-	0x03,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0xFF,
-	0xFF,
-	0x0A,
-	0xAB // tail
+	0x08, // data byte 1
+	0x01, // data byte 2 (0：query the current mode 1：set new mode)
+	0x00, // data byte 3 (0-30: Duty cycle in seconds)
+	0x00, // data byte 4
+	0x00, // data byte 5
+	0x00, // data byte 6
+	0x00, // data byte 7
+	0x00, // data byte 8
+	0x00, // data byte 9
+	0x00, // data byte 10
+	0x00, // data byte 11
+	0x00, // data byte 12
+	0x00, // data byte 13
+	0xFF, // data byte 14 (device id byte 1)
+	0xFF, // data byte 15 (device id byte 2)
+	0x00, // checksum
+	0xAB  // tail
 };
 
-static CommandType VERSIONCMD = {
-	0xAA,
-	0xB4,
-	0x07,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0xFF,
-	0xFF,
-	0x05,
-	0xAB // tail
+static ReplyType DUTY_CYCLE_REPLY = {
+	0xAA, // head
+	0xC5, // command id
+	0x08, // data byte 1 
+	0x00, // data byte 2 (0：query the current mode 1：set new mode)
+	0x00, // data byte 3 (0-30: Duty cycle in seconds)
+	0x00, // data byte 4 
+	0x00, // data byte 5 (device id byte 1)
+	0x00, // data byte 6 (device id byte 2)
+	0x00, // checksum
+	0xAB  // tail
+};
+
+static  CommandType VERSION_CMD = {
+	0xAA, // head
+	0xB4, // command id
+	0x07, // data byte 1
+	0x01, // data byte 2
+	0x00, // data byte 3
+	0x00, // data byte 4
+	0x00, // data byte 5
+	0x00, // data byte 6
+	0x00, // data byte 7
+	0x00, // data byte 8
+	0x00, // data byte 9
+	0x00, // data byte 10
+	0x00, // data byte 11
+	0x00, // data byte 12
+	0x00, // data byte 13
+	0xFF, // data byte 14 (device id byte 1)
+	0xFF, // data byte 15 (device id byte 2)
+	0x00, // checksum
+	0xAB  // tail
+};
+
+static ReplyType VERSION_REPLY = {
+	0xAA, // head
+	0xC5, // command id
+	0x07, // data byte 1 
+	0x00, // data byte 2 (Yers)
+	0x00, // data byte 3 (Month)
+	0x00, // data byte 4 (Day)
+	0x00, // data byte 5 (device id byte 1)
+	0x00, // data byte 6 (device id byte 2)
+	0x00, // checksum
+	0xAB  // tail
 };
