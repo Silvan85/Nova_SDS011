@@ -99,19 +99,6 @@ void testDataWorkingMode(uint16_t device_id = 0xFFFF)
   Serial.println("Success: testDataWorkingMode");
 }
 
-void testSetDeviceID(uint16_t device_id = 0xFFFF)
-{
-  Serial.println("Start: testSetDeviceID to " + String(device_id));
-
-  if (!sds011.setDeviceID(device_id))
-  {
-    Serial.println("Fail setting SDS011 Device ID to 0xAAAA.");
-    return;
-  }
-
-  Serial.println("Success: testSetDeviceID");
-}
-
 void testDataDutyCycle(uint16_t device_id = 0xFFFF)
 {
   Serial.println("Start: testDataDutyCycle with ID " + String(device_id));
@@ -144,32 +131,57 @@ void testDataDutyCycle(uint16_t device_id = 0xFFFF)
   Serial.println("Success: testDataDutyCycle");
 }
 
+void testSetDeviceID(uint16_t device_id = 0xFFFF)
+{
+  Serial.println("Start: testSetDeviceID to " + String(device_id));
+
+  if (!sds011.setDeviceID(device_id))
+  {
+    Serial.println("Fail setting SDS011 Device ID to 0xAAAA.");
+    return;
+  }
+
+  Serial.println("Success: testSetDeviceID");
+}
+
 void setup()
 {
   Serial.begin(115200); // Output to Serial at 9600 baud
   sds011.begin(SDS_PIN_RX, SDS_PIN_TX);
 
-  SDS011Version version = sds011.getVersionDate();
-
-  Serial.println("SDS011 Firmware Vesion:\nYear: " + String(version.year) + "\nMonth: " + 
-    String(version.month) + "\nDay: " + String(version.day));
-
-  uint16_t deviceID = 0xAAAA;
-
   //testDataReportingMode();
   //testDataWorkingMode();
+  //testDataDutyCycle();
+  //testSetDeviceID(0xAAAA);
 
-  testDataDutyCycle();
+  SDS011Version version = sds011.getVersionDate();
 
-  //testSetDeviceID(deviceID);
+  if (version.valid)
+  {
+    Serial.println("SDS011 Firmware Vesion:\nYear: " + String(version.year) + "\nMonth: " +
+                   String(version.month) + "\nDay: " + String(version.day));
+  }
+  else
+  {
+    Serial.println("FAIL: Unable to obtain Software Version");
+  }
+
+  if (sds011.setDutyCycle(5))
+  {
+    Serial.println("SDS011 Duty Cycle set to 5min");
+  }
+  else
+  {
+    Serial.println("FAIL: Unable to set Duty Cycle");
+  }
 }
 
 void loop()
 {
   float p25, p10;
-  // if (sds011.queryData(p25, p10) == QuerryError::no_error)
-  // {
-  //   Serial.println(String(millis() / 1000) + "s:PM2.5=" + String(p25) + ", PM10=" + String(p10));
-  //   delay(1000);
-  // }
+  if (sds011.queryData(p25, p10) == QuerryError::no_error)
+  {
+    Serial.println(String(millis() / 1000) + "s:PM2.5=" + String(p25) + ", PM10=" + String(p10));
+    delay(60000);
+  }
 }

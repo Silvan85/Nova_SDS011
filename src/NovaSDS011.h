@@ -1,14 +1,15 @@
-#pragma once
+/** 
+ * @file NovaSDS011.h
+ * @brief Driver for Nova Fitness sds011 air quality sensor.
+ *
+ * This driver implements protocol described in 
+ * Laser Dust Sensor Control Protocol V1.3
+ *
+ * @author R. Orecki
+ * 12.2019
+ */
 
-// NovaSDS011( sensor of PM2.5 and PM10 )
-// ---------------------------------
-//
-// By R. Orecki
-// December 2019
-//
-// Documentation:
-//		- The iNovaFitness NovaSDS(datasheet)
-//
+#pragma once
 
 #if ARDUINO >= 100
 #include "Arduino.h"
@@ -18,7 +19,7 @@
 
 #include <SoftwareSerial.h>
 
-//#define NO_TRACES
+//#define NO_TRACES 
 
 typedef uint8_t CommandType[19];
 typedef uint8_t ReplyType[10];
@@ -47,6 +48,7 @@ enum WorkingMode
 
 struct SDS011Version
 {
+	bool valid;
 	uint8_t year;
 	uint8_t month;
 	uint8_t day;
@@ -70,7 +72,7 @@ public:
 	void begin(uint8_t pin_rx, uint8_t pin_tx, uint16_t wait_write_read = 100);
 
 	/**
-		* Set raport mode.
+		* Set raport mode to specyfic device or to all devices connected to bus.
 		* Report query mode：Sensor received query data command to report a measurement data.
         * Report active mode：Sensor automatically reports a measurement data in a work period.
 		* @param mode choosen mode
@@ -80,7 +82,7 @@ public:
 	bool setDataReportingMode(DataReportingMode mode, uint16_t device_id = 0xFFFF);
 
 	/**
-		* Get raport mode.
+		* Get raport mode from specyfic device or to all devices connected to bus.
 		* Report query mode：Sensor received query data command to report a measurement data.
         * Report active mode：Sensor automatically reports a measurement data in a work period.
 		* @param device_id device id (optional)
@@ -107,16 +109,46 @@ public:
 		*/
 	bool setDeviceID(uint16_t new_device_id, uint16_t device_id = 0xFFFF);
 
-
+	/**
+		* Set new working mode to specyfic device or to all devices connected to bus.
+		* @param mode new mode
+		* @param device_id device id (optional)
+		* @return true if operation was sucessfull 
+		*/
 	bool setWorkingMode(WorkingMode mode, uint16_t device_id = 0xFFFF);
 
+	/**
+		* Get working mode from specyfic device or to all devices connected to bus.
+		* It may be imposible to get working mode if sensor is sleepig.
+		* @param device_id device id (optional)
+		* @return WorkingMode
+		*/
 	WorkingMode getWorkingMode(uint16_t device_id = 0xFFFF);
 
+	/**
+		* Set duty cycle to specyfic device or to all devices connected to bus.
+		* 0：continuous(default) 
+		* 1-30minute：[work 30 seconds and sleep n*60-30 seconds] 
+		* @param duty_cycle 
+		* @param device_id device id (optional)
+		* @return true if operation was sucessfull 
+		*/
 	bool setDutyCycle(uint8_t duty_cycle, uint16_t device_id = 0xFFFF);
 
+	/**
+		* Get duty cycle from specyfic device or to all devices connected to bus.
+		* @param device_id device id (optional)
+		* @return uint8_t duty cycle, 0xFF if error occures
+		*/
 	uint8_t getDutyCycle(uint16_t device_id = 0xFFFF);
 
+	/**
+		* Get software version from specyfic device or to all devices connected to bus.
+		* @param device_id device id (optional)
+		* @return SDS011Version valid is false if error occures
+		*/
 	SDS011Version getVersionDate(int16_t device_id = 0xFFFF);
+	
 private:
 	void clearSerial();
 	/**

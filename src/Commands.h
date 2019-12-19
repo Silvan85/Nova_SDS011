@@ -1,3 +1,11 @@
+/** 
+ * @file Commands.h
+ * @brief Commands and replies definitions.
+ *
+ * @author R. Orecki
+ * 12.2019
+ */
+
 #pragma once
 #include "NovaSDS011.h"
 

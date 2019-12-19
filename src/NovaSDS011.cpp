@@ -1,12 +1,14 @@
-// NovaSDS011( sensor of PM2.5 and PM10 )
-// ---------------------------------
-//
-// By R. Orecki
-// December 2019
-//
-// Documentation:
-//		- The iNovaFitness NovaSDS(datasheet)
-//
+/** 
+ * @file NovaSDS011.cpp
+ * @brief Driver for Nova Fitness sds011 air quality sensor.
+ *
+ * This driver implements protocol described in 
+ * Laser Dust Sensor Control Protocol V1.3
+ *
+ * @author R. Orecki
+ * 12.2019
+ */
+
 #include "NovaSDS011.h"
 #include "Commands.h"
 
@@ -624,8 +626,8 @@ uint8_t NovaSDS011::getDutyCycle(uint16_t device_id)
 }
 
 /*****************************************************************
-  /* read NovaSDS011 sensor values                                     *
-  /*****************************************************************/
+/* read NovaSDS011 sensor values
+/*****************************************************************/
 SDS011Version NovaSDS011::getVersionDate(int16_t device_id)
 {
   ReplyType reply;
@@ -645,7 +647,7 @@ SDS011Version NovaSDS011::getVersionDate(int16_t device_id)
 #ifndef NO_TRACES
     DebugOut("getVersionDate - Error read reply timeout");
 #endif
-    return {0, 0, 0};
+    return {false, 0, 0, 0};
   }
 
   VERSION_REPLY[3] = reply[3]; //Get reporting mode
@@ -672,8 +674,8 @@ SDS011Version NovaSDS011::getVersionDate(int16_t device_id)
       DebugOut("getVersionDate - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
                " Expected byte=" + String(VERSION_REPLY[i]));
 #endif
-      return {0, 0, 0};
+      return {false, 0, 0, 0};
     }
   }
-  return {VERSION_REPLY[3], VERSION_REPLY[4], VERSION_REPLY[5]};
+  return {true, VERSION_REPLY[3], VERSION_REPLY[4], VERSION_REPLY[5]};
 }
