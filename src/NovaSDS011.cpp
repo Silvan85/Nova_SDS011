@@ -84,9 +84,9 @@ uint8_t NovaSDS011::calculateReplyCheckSum(ReplyType reply)
 bool NovaSDS011::readReply(ReplyType &reply)
 {
   bool timeout = true;
-
+  
   uint64_t start = millis();
-  while (_sdsSerial->available() == 0)
+  while (_sdsSerial->available() < sizeof(ReplyType))
   {
     if (millis() > (start + _waitWriteRead))
     {
@@ -96,8 +96,8 @@ bool NovaSDS011::readReply(ReplyType &reply)
     delay(1);
   }
 
-  uint32_t duration = (millis() - start);
 #ifndef NO_TRACES
+  uint32_t duration = (millis() - start);
   DebugOut("readReply - Wait for " + String(duration) + "ms");
 #endif
 
@@ -150,7 +150,9 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
 
   if (readReply(reply))
   {
+#ifndef NO_TRACES
     DebugOut("setDataReportingMode - Error read reply timeout");
+#endif
     return false;
   }
   readReply(reply);
@@ -370,8 +372,10 @@ bool NovaSDS011::setDeviceID(uint16_t new_device_id, uint16_t device_id)
   {
     if (SET_ID_REPLY[i] != reply[i])
     {
+#ifndef NO_TRACES
       DebugOut("setDeviceID - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
                " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
+#endif
       return false;
     }
   }

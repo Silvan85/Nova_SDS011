@@ -69,7 +69,7 @@ public:
 		* @param pin_tx 
 		* @param wait_write_read Max time in ms to wait for respons after sending command to sensor.
 		*/
-	void begin(uint8_t pin_rx, uint8_t pin_tx, uint16_t wait_write_read = 100);
+	void begin(uint8_t pin_rx, uint8_t pin_tx, uint16_t wait_write_read = 500);
 
 	/**
 		* Set raport mode to specyfic device or to all devices connected to bus.
