@@ -19,7 +19,7 @@
 
 #include <SoftwareSerial.h>
 
-//#define NO_TRACES 
+#define NO_TRACES 
 
 typedef uint8_t CommandType[19];
 typedef uint8_t ReplyType[10];
