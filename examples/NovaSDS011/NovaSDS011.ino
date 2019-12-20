@@ -154,6 +154,15 @@ void setup()
   //testDataDutyCycle();
   //testSetDeviceID(0xAAAA);
 
+  if (sds011.setWorkingMode(WorkingMode::work))
+  {
+    Serial.println("SDS011 working mode");
+  }
+  else
+  {
+    Serial.println("FAIL: Unable to set working mode \"Work\"");
+  }
+
   SDS011Version version = sds011.getVersionDate();
 
   if (version.valid)
