@@ -156,7 +156,7 @@ void setup()
 
   if (sds011.setWorkingMode(WorkingMode::work))
   {
-    Serial.println("SDS011 working mode");
+    Serial.println("SDS011 working mode \"Work\"");
   }
   else
   {
