@@ -632,7 +632,7 @@ uint8_t NovaSDS011::getDutyCycle(uint16_t device_id)
 /*****************************************************************
 /* read NovaSDS011 sensor values
 /*****************************************************************/
-SDS011Version NovaSDS011::getVersionDate(int16_t device_id)
+SDS011Version NovaSDS011::getVersionDate(unt16_t device_id)
 {
   ReplyType reply;
 

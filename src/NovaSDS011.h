@@ -147,7 +147,7 @@ public:
 		* @param device_id device id (optional)
 		* @return SDS011Version valid is false if error occures
 		*/
-	SDS011Version getVersionDate(int16_t device_id = 0xFFFF);
+	SDS011Version getVersionDate(unt16_t device_id = 0xFFFF);
 	
 private:
 	void clearSerial();
