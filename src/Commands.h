@@ -211,7 +211,7 @@ static ReplyType VERSION_REPLY = {
 	0xAA, // head
 	0xC5, // command id
 	0x07, // data byte 1 
-	0x00, // data byte 2 (Yers)
+	0x00, // data byte 2 (Year)
 	0x00, // data byte 3 (Month)
 	0x00, // data byte 4 (Day)
 	0x00, // data byte 5 (device id byte 1)

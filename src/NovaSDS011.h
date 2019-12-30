@@ -64,35 +64,35 @@ public:
 	NovaSDS011();
 
 	/**
-		* Initialize comunication via serial bus.
+		* Initialize communication via serial bus.
 		* @param pin_rx 
 		* @param pin_tx 
-		* @param wait_write_read Max time in ms to wait for respons after sending command to sensor.
+		* @param wait_write_read Max time in ms to wait for response after sending command to sensor.
 		*/
 	void begin(uint8_t pin_rx, uint8_t pin_tx, uint16_t wait_write_read = 500);
 
 	/**
-		* Set raport mode to specyfic device or to all devices connected to bus.
-		* Report query mode：Sensor received query data command to report a measurement data.
-        * Report active mode：Sensor automatically reports a measurement data in a work period.
-		* @param mode choosen mode
+		* Set report mode to specific device or to all devices connected to bus.
+		* Report query mode：Sensor received query data command to report the measurement data.
+        * Report active mode：Sensor automatically reports the measurement data in a work period.
+		* @param mode chosen mode
 		* @param device_id device id (optional)
-		* @return true if operation was sucessfull 
+		* @return true if operation was sucessful 
 		*/
 	bool setDataReportingMode(DataReportingMode mode, uint16_t device_id = 0xFFFF);
 
 	/**
-		* Get raport mode from specyfic device or to all devices connected to bus.
-		* Report query mode：Sensor received query data command to report a measurement data.
-        * Report active mode：Sensor automatically reports a measurement data in a work period.
+		* Get report mode from specific device or from all devices connected to bus.
+		* Report query mode：Sensor received query data command to report the measurement data.
+        * Report active mode：Sensor automatically reports the measurement data in a work period.
 		* @param device_id device id (optional)
 		* @return DataReportingMode
 		*/
 	DataReportingMode getDataReportingMode(uint16_t device_id = 0xFFFF);
 
 	/**
-		* Send query to sensor asking for mesurment data.
-		* According to specyfication recommended query interval of not less than 3 seconds.
+		* Send query to sensor asking for measurement data.
+		* According to specification recommended query interval of not less than 3 seconds.
 		* @param [out] PM25 value of PM2.5 particles in (μg/m3)
 		* @param [out] PM10 value of PM10 particles in (μg/m3)
 		* @param device_id device id (optional)
@@ -102,50 +102,50 @@ public:
 
 
 	/**
-		* Set new device ID to specyfic device or to all devices connected to bus.
+		* Set new device ID to specific device or to all devices connected to bus.
 		* @param new_device_id new device id
 		* @param device_id device id (optional)
-		* @return true if operation was sucessfull 
+		* @return true if operation was sucessful 
 		*/
 	bool setDeviceID(uint16_t new_device_id, uint16_t device_id = 0xFFFF);
 
 	/**
-		* Set new working mode to specyfic device or to all devices connected to bus.
+		* Set new working mode to specific device or to all devices connected to bus.
 		* @param mode new mode
 		* @param device_id device id (optional)
-		* @return true if operation was sucessfull 
+		* @return true if operation was sucessful 
 		*/
 	bool setWorkingMode(WorkingMode mode, uint16_t device_id = 0xFFFF);
 
 	/**
-		* Get working mode from specyfic device or to all devices connected to bus.
-		* It may be imposible to get working mode if sensor is sleepig.
+		* Get working mode from specific device or from all devices connected to bus.
+		* It may be imposible to get working mode if sensor is sleeping.
 		* @param device_id device id (optional)
 		* @return WorkingMode
 		*/
 	WorkingMode getWorkingMode(uint16_t device_id = 0xFFFF);
 
 	/**
-		* Set duty cycle to specyfic device or to all devices connected to bus.
+		* Set duty cycle to specific device or to all devices connected to bus.
 		* 0：continuous(default) 
 		* 1-30minute：[work 30 seconds and sleep n*60-30 seconds] 
 		* @param duty_cycle 
 		* @param device_id device id (optional)
-		* @return true if operation was sucessfull 
+		* @return true if operation was sucessful 
 		*/
 	bool setDutyCycle(uint8_t duty_cycle, uint16_t device_id = 0xFFFF);
 
 	/**
-		* Get duty cycle from specyfic device or to all devices connected to bus.
+		* Get duty cycle from specific device or from all devices connected to bus.
 		* @param device_id device id (optional)
-		* @return uint8_t duty cycle, 0xFF if error occures
+		* @return uint8_t duty cycle, 0xFF if error occurs
 		*/
 	uint8_t getDutyCycle(uint16_t device_id = 0xFFFF);
 
 	/**
-		* Get software version from specyfic device or to all devices connected to bus.
+		* Get software version from specific device or from all devices connected to bus.
 		* @param device_id device id (optional)
-		* @return SDS011Version valid is false if error occures
+		* @return SDS011Version valid is false if error occurs
 		*/
 	SDS011Version getVersionDate(uint16_t device_id = 0xFFFF);
 	
@@ -161,7 +161,7 @@ private:
 	uint8_t calculateCommandCheckSum(CommandType cmd);
 
 	/**
-		* Calculate checksum from given repry.
+		* Calculate checksum from given reply.
 		* Checksum: Low 8bit of the sum result of Data Bytes（not including packet head, tail and
 		* Command ID).
 		* @param cmd input reply
@@ -170,7 +170,7 @@ private:
 	uint8_t calculateReplyCheckSum(ReplyType reply);
 
 	/**
-		* Wait up to _waitWriteRead ms for replay to arrive the read it into &reply. 
+		* Wait up to _waitWriteRead ms for reply to arrive and read it into &reply. 
 		* Command ID).
 		* @param [out] reply place for reply
 		* @return if timeout
@@ -180,7 +180,7 @@ private:
 	void DebugOut(const String &text, bool linebreak = true);
 
 	/**
-		* Max time to wait for respons after sending command to sensor.
+		* Max time to wait for response after sending command to sensor.
 		*/
 	uint16_t _waitWriteRead = 1000;
 

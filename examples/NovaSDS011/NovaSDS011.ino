@@ -18,7 +18,7 @@ void testDataReportingMode(uint16_t device_id = 0xFFFF)
   DataReportingMode reportMode = sds011.getDataReportingMode(device_id);
   if (reportMode == DataReportingMode::report_error)
   {
-    Serial.println("Fail: gettin SDS011 Report Mode.");
+    Serial.println("Fail: getting SDS011 Report Mode.");
     return;
   }
   if (reportMode == DataReportingMode::query)
@@ -36,7 +36,7 @@ void testDataReportingMode(uint16_t device_id = 0xFFFF)
   reportMode = sds011.getDataReportingMode(device_id);
   if (reportMode == DataReportingMode::report_error)
   {
-    Serial.println("Fail: gettin SDS011 Report Mode.");
+    Serial.println("Fail: getting SDS011 Report Mode.");
     return;
   }
   if (reportMode == DataReportingMode::active)
@@ -54,7 +54,7 @@ void testDataReportingMode(uint16_t device_id = 0xFFFF)
   reportMode = sds011.getDataReportingMode(device_id);
   if (reportMode == DataReportingMode::report_error)
   {
-    Serial.println("Fail: gettin SDS011 Report Mode.");
+    Serial.println("Fail: getting SDS011 Report Mode.");
     return;
   }
   if (reportMode == DataReportingMode::query)
@@ -76,7 +76,7 @@ void testDataWorkingMode(uint16_t device_id = 0xFFFF)
     return;
   }
 
-  delay(4000); //Hear fann tunrning off
+  delay(4000); //Hear fan turning off
   //Test Set to Work
   if (!sds011.setWorkingMode(WorkingMode::work, device_id))
   {
@@ -87,7 +87,7 @@ void testDataWorkingMode(uint16_t device_id = 0xFFFF)
   WorkingMode workingMode = sds011.getWorkingMode(device_id);
   if (workingMode == WorkingMode::working_error)
   {
-    Serial.println("Fail: gettin SDS011 Working Mode.");
+    Serial.println("Fail: getting SDS011 Working Mode.");
     return;
   }
   if (workingMode == WorkingMode::sleep)
@@ -112,7 +112,7 @@ void testDataDutyCycle(uint16_t device_id = 0xFFFF)
   uint8_t dutyCycle = sds011.getDutyCycle(device_id);
   if (dutyCycle == 0xFF)
   {
-    Serial.println("Fail: gettin SDS011 duty cycle.");
+    Serial.println("Fail: getting SDS011 duty cycle.");
     return;
   }
   else if (dutyCycle != 20)

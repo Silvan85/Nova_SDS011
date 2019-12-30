@@ -176,7 +176,7 @@ bool NovaSDS011::setDataReportingMode(DataReportingMode mode, uint16_t device_id
     if (REPORT_TYPE_REPLY[i] != reply[i])
     {
 #ifndef NO_TRACES
-      DebugOut("setDataReportingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+      DebugOut("setDataReportingMode - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
 #endif
       return false;
@@ -230,7 +230,7 @@ DataReportingMode NovaSDS011::getDataReportingMode(uint16_t device_id)
     if (REPORT_TYPE_REPLY[i] != reply[i])
     {
 #ifndef NO_TRACES
-      DebugOut("getDataReportingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+      DebugOut("getDataReportingMode - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
 #endif
       return DataReportingMode::report_error;
@@ -310,7 +310,7 @@ QuerryError NovaSDS011::queryData(float &PM25, float &PM10, uint16_t device_id)
     if (QUERY_REPLY[i] != reply[i])
     {
 #ifndef NO_TRACES
-      DebugOut("queryData - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+      DebugOut("queryData - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
 #endif
       return QuerryError::response_error;
@@ -373,7 +373,7 @@ bool NovaSDS011::setDeviceID(uint16_t new_device_id, uint16_t device_id)
     if (SET_ID_REPLY[i] != reply[i])
     {
 #ifndef NO_TRACES
-      DebugOut("setDeviceID - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+      DebugOut("setDeviceID - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(REPORT_TYPE_REPLY[i]));
 #endif
       return false;
@@ -431,7 +431,7 @@ bool NovaSDS011::setWorkingMode(WorkingMode mode, uint16_t device_id)
     if (WORKING_MODE_REPLY[i] != reply[i])
     {
 #ifndef NO_TRACES
-      DebugOut("setWorkingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+      DebugOut("setWorkingMode - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(WORKING_MODE_REPLY[i]));
 #endif
       return false;
@@ -485,7 +485,7 @@ WorkingMode NovaSDS011::getWorkingMode(uint16_t device_id)
     if (WORKING_MODE_REPLY[i] != reply[i])
     {
 #ifndef NO_TRACES
-      DebugOut("getWorkingMode - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+      DebugOut("getWorkingMode - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(WORKING_MODE_REPLY[i]));
 #endif
       return WorkingMode::working_error;
@@ -558,7 +558,7 @@ bool NovaSDS011::setDutyCycle(uint8_t duty_cycle, uint16_t device_id)
     if (DUTY_CYCLE_REPLY[i] != reply[i])
     {
 #ifndef NO_TRACES
-      DebugOut("setDutyCycle - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+      DebugOut("setDutyCycle - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(DUTY_CYCLE_REPLY[i]));
 #endif
       return false;
@@ -612,7 +612,7 @@ uint8_t NovaSDS011::getDutyCycle(uint16_t device_id)
     if (DUTY_CYCLE_REPLY[i] != reply[i])
     {
 #ifndef NO_TRACES
-      DebugOut("getDutyCycle - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+      DebugOut("getDutyCycle - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(DUTY_CYCLE_REPLY[i]));
 #endif
       return WorkingMode::working_error;
@@ -675,7 +675,7 @@ SDS011Version NovaSDS011::getVersionDate(uint16_t device_id)
     if (VERSION_REPLY[i] != reply[i])
     {
 #ifndef NO_TRACES
-      DebugOut("getVersionDate - Error on byte " + String(i) + " Recived byte=" + String(reply[i]) +
+      DebugOut("getVersionDate - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(VERSION_REPLY[i]));
 #endif
       return {false, 0, 0, 0};
