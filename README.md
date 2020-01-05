@@ -5,18 +5,18 @@
 
 ## Getting Started
 
-This liblary cover all functions discribed in Laser Dust Sensor Control Protocol V1.3
+This library covers all functions described in Laser Dust Sensor Control Protocol V1.3
 
 How to use api is described in [NovaSDS011.h]
-File [NovaSDS011.ino] contains exaples 
+File [NovaSDS011.ino] contains examples 
 
 ### Prerequisites
 
-This liblary uses SoftwareSerial
+This library uses SoftwareSerial
 
 ### Installing
 
-Copy to you arduino liblaries directory.
+Copy to you arduino libraries directory.
 
 On OSX, the default location for non-included sketches would be:
 /Users/<username>/Documents/Arduino/libraries/
@@ -26,7 +26,7 @@ C:\Users\<username>\Documents\Arduino\libraries
 
 ## Deployment
 
-This liblary was tested on NodeMCU and Duemilanove boards
+This library was tested on NodeMCU and Duemilanove boards
 
 
 ## Authors
