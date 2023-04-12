@@ -41,7 +41,7 @@ enum QuerryError
 
 enum WorkingMode
 {
-	sleep = 0,
+	_sleep = 0,
 	work = 1,
 	working_error = 0xFF
 };

@@ -70,7 +70,7 @@ void testDataWorkingMode(uint16_t device_id = 0xFFFF)
   Serial.println("Start: testDataWorkingMode with ID " + String(device_id));
 
   // Test Set to Sleep
-  if (!sds011.setWorkingMode(WorkingMode::sleep, device_id))
+  if (!sds011.setWorkingMode(WorkingMode::_sleep, device_id))
   {
     Serial.println("Fail: setting SDS011 Working Mode to sleep.");
     return;
@@ -90,7 +90,7 @@ void testDataWorkingMode(uint16_t device_id = 0xFFFF)
     Serial.println("Fail: getting SDS011 Working Mode.");
     return;
   }
-  if (workingMode == WorkingMode::sleep)
+  if (workingMode == WorkingMode::_sleep)
   {
     Serial.println("Fail: SDS011 Working Mode not as set.");
     return;

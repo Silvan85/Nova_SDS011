@@ -404,7 +404,7 @@ bool NovaSDS011::setWorkingMode(WorkingMode mode, uint16_t device_id)
 
   timeout = readReply(reply);
 
-  if ((mode == WorkingMode::sleep) && (timeout))
+  if ((mode == WorkingMode::_sleep) && (timeout))
   {
 #ifndef NO_TRACES
     DebugOut("setWorkingMode - Read timeout");
@@ -492,9 +492,9 @@ WorkingMode NovaSDS011::getWorkingMode(uint16_t device_id)
     }
   }
 
-  if (reply[4] == WorkingMode::sleep)
+  if (reply[4] == WorkingMode::_sleep)
   {
-    return WorkingMode::sleep;
+    return WorkingMode::_sleep;
   }
   else if (reply[4] == WorkingMode::work)
   {
