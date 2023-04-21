@@ -404,7 +404,7 @@ bool NovaSDS011::setWorkingMode(WorkingMode mode, uint16_t device_id)
 
   timeout = readReply(reply);
 
-  if ((mode == WorkingMode::_sleep) && (timeout))
+  if ((mode == WorkingMode::mode_sleep) && (timeout))
   {
 #ifndef NO_TRACES
     DebugOut("setWorkingMode - Read timeout");
@@ -463,7 +463,7 @@ WorkingMode NovaSDS011::getWorkingMode(uint16_t device_id)
 #ifndef NO_TRACES
     DebugOut("getWorkingMode - Error read reply timeout");
 #endif
-    return WorkingMode::working_error;
+    return WorkingMode::mode_work_error;
   }
 
   WORKING_MODE_REPLY[3] = WORKING_MODE_CMD[3]; //Get reporting mode
@@ -488,21 +488,21 @@ WorkingMode NovaSDS011::getWorkingMode(uint16_t device_id)
       DebugOut("getWorkingMode - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(WORKING_MODE_REPLY[i]));
 #endif
-      return WorkingMode::working_error;
+      return WorkingMode::mode_work_error;
     }
   }
 
-  if (reply[4] == WorkingMode::_sleep)
+  if (reply[4] == WorkingMode::mode_sleep)
   {
-    return WorkingMode::_sleep;
+    return WorkingMode::mode_sleep;
   }
   else if (reply[4] == WorkingMode::work)
   {
-    return WorkingMode::work;
+    return WorkingMode::mode_work;
   }
   else
   {
-    return WorkingMode::working_error;
+    return WorkingMode::mode_work_error;
   }
 }
 
@@ -590,7 +590,7 @@ uint8_t NovaSDS011::getDutyCycle(uint16_t device_id)
 #ifndef NO_TRACES
     DebugOut("getDutyCycle - Error read reply timeout");
 #endif
-    return WorkingMode::working_error;
+    return WorkingMode::mode_work_error;
   }
 
   DUTY_CYCLE_REPLY[3] = DUTY_CYCLE_CMD[3]; //Get reporting mode
@@ -615,7 +615,7 @@ uint8_t NovaSDS011::getDutyCycle(uint16_t device_id)
       DebugOut("getDutyCycle - Error on byte " + String(i) + " Received byte=" + String(reply[i]) +
                " Expected byte=" + String(DUTY_CYCLE_REPLY[i]));
 #endif
-      return WorkingMode::working_error;
+      return WorkingMode::mode_work_error;
     }
   }
 

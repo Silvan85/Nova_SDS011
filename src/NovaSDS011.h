@@ -41,9 +41,9 @@ enum QuerryError
 
 enum WorkingMode
 {
-	_sleep = 0,
-	work = 1,
-	working_error = 0xFF
+	mode_sleep = 0,
+	mode_work = 1,
+	mode_work_error = 0xFF
 };
 
 struct SDS011Version
