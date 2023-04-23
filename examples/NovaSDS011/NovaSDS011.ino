@@ -70,7 +70,7 @@ void testDataWorkingMode(uint16_t device_id = 0xFFFF)
   Serial.println("Start: testDataWorkingMode with ID " + String(device_id));
 
   // Test Set to Sleep
-  if (!sds011.setWorkingMode(WorkingMode::sleep, device_id))
+  if (!sds011.setWorkingMode(WorkingMode::mode_sleep, device_id))
   {
     Serial.println("Fail: setting SDS011 Working Mode to sleep.");
     return;
@@ -78,19 +78,19 @@ void testDataWorkingMode(uint16_t device_id = 0xFFFF)
 
   delay(4000); //Hear fan turning off
   //Test Set to Work
-  if (!sds011.setWorkingMode(WorkingMode::work, device_id))
+  if (!sds011.setWorkingMode(WorkingMode::mode_work, device_id))
   {
     Serial.println("Fail: setting SDS011 Working Mode to work.");
     return;
   }
   delay(400);
   WorkingMode workingMode = sds011.getWorkingMode(device_id);
-  if (workingMode == WorkingMode::working_error)
+  if (workingMode == WorkingMode::mode_error)
   {
     Serial.println("Fail: getting SDS011 Working Mode.");
     return;
   }
-  if (workingMode == WorkingMode::sleep)
+  if (workingMode == WorkingMode::mode_sleep)
   {
     Serial.println("Fail: SDS011 Working Mode not as set.");
     return;
@@ -154,7 +154,7 @@ void setup()
   //testDataDutyCycle();
   //testSetDeviceID(0xAAAA);
 
-  if (sds011.setWorkingMode(WorkingMode::work))
+  if (sds011.setWorkingMode(WorkingMode::mode_work))
   {
     Serial.println("SDS011 working mode \"Work\"");
   }
