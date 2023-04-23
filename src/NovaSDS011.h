@@ -43,7 +43,7 @@ enum WorkingMode
 {
 	mode_sleep = 0,
 	mode_work = 1,
-	mode_work_error = 0xFF
+	mode_error = 0xFF
 };
 
 struct SDS011Version
