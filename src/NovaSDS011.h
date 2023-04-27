@@ -17,9 +17,12 @@
 #include "WProgram.h"
 #endif
 
-#include <SoftwareSerial.h>
-
 #define NO_TRACES 
+
+#ifdef ESP32
+// ESP32 does not support softwareserial.
+#include<HardwareSerial.h>
+#endif
 
 typedef uint8_t CommandType[19];
 typedef uint8_t ReplyType[10];
@@ -39,9 +42,18 @@ enum QuerryError
 	call_to_often = 3
 };
 
+
+#ifdef ESP32
+// Compiler will not allow redaclaration of symbol sleep for ESP32 arduino.
+// By defining a symbol library is kept backwards compatible with previous versions
+#define NOVASDS011_SLEEPMODE sleepMode
+#else
+#define NOVASDS011_SLEEPMODE sleep
+#endif
+
 enum WorkingMode
 {
-	sleep = 0,
+	NOVASDS011_SLEEPMODE = 0,
 	work = 1,
 	working_error = 0xFF
 };
@@ -63,6 +75,7 @@ public:
 		*/
 	NovaSDS011();
 
+#ifndef ESP32
 	/**
 		* Initialize communication via serial bus.
 		* @param pin_rx 
@@ -70,6 +83,17 @@ public:
 		* @param wait_write_read Max time in ms to wait for response after sending command to sensor.
 		*/
 	void begin(uint8_t pin_rx, uint8_t pin_tx, uint16_t wait_write_read = 500);
+
+#else
+	/**
+		* Initialize communication via serial bus.
+		* @param serial The hardware serial to use
+		* @param pin_rx 
+		* @param pin_tx 
+		* @param wait_write_read Max time in ms to wait for response after sending command to sensor.
+		*/
+	void begin(HardwareSerial * serial, uint8_t pin_rx, uint8_t pin_tx, uint16_t wait_write_read = 500);
+#endif
 
 	/**
 		* Set report mode to specific device or to all devices connected to bus.

@@ -12,6 +12,12 @@
 #include "NovaSDS011.h"
 #include "Commands.h"
 
+#ifdef ESP32
+#include <HardwareSerial.h>
+#else
+#include <SoftwareSerial.h>
+#endif
+
 #define MIN_QUERY_INTERVAL 3000
 
 // --------------------------------------------------------
@@ -114,6 +120,7 @@ bool NovaSDS011::readReply(ReplyType &reply)
   return timeout;
 }
 
+#ifndef ESP32
 // --------------------------------------------------------
 // NovaSDS011:begin
 // --------------------------------------------------------
@@ -128,6 +135,21 @@ void NovaSDS011::begin(uint8_t pin_rx, uint8_t pin_tx, uint16_t wait_write_read)
 
   clearSerial();
 }
+
+#else
+// --------------------------------------------------------
+// NovaSDS011:begin
+// --------------------------------------------------------
+void NovaSDS011::begin(HardwareSerial * serial, uint8_t pin_rx, uint8_t pin_tx, uint16_t wait_write_read) {
+    _waitWriteRead = wait_write_read;
+
+  serial->begin(9600, SERIAL_8N1, pin_rx, pin_tx);  
+  
+  _sdsSerial = serial;
+
+  clearSerial();
+}
+#endif
 
 // --------------------------------------------------------
 // NovaSDS011:setDataReportingMode
@@ -404,7 +426,7 @@ bool NovaSDS011::setWorkingMode(WorkingMode mode, uint16_t device_id)
 
   timeout = readReply(reply);
 
-  if ((mode == WorkingMode::sleep) && (timeout))
+  if ((mode == WorkingMode::NOVASDS011_SLEEPMODE) && (timeout))
   {
 #ifndef NO_TRACES
     DebugOut("setWorkingMode - Read timeout");
@@ -492,9 +514,9 @@ WorkingMode NovaSDS011::getWorkingMode(uint16_t device_id)
     }
   }
 
-  if (reply[4] == WorkingMode::sleep)
+  if (reply[4] == WorkingMode::NOVASDS011_SLEEPMODE)
   {
-    return WorkingMode::sleep;
+    return WorkingMode::NOVASDS011_SLEEPMODE;
   }
   else if (reply[4] == WorkingMode::work)
   {
