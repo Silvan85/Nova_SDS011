@@ -518,7 +518,7 @@ WorkingMode NovaSDS011::getWorkingMode(uint16_t device_id)
   {
     return WorkingMode::mode_sleep;
   }
-  else if (reply[4] == WorkingMode::work)
+  else if (reply[4] == WorkingMode::mode_work)
   {
     return WorkingMode::mode_work;
   }
